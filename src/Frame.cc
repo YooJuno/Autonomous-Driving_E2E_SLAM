@@ -474,6 +474,32 @@ void Frame::UpdatePoseMatrices()
     Sophus::SE3<float> Twc = mTcw.inverse();
     mRwc = Twc.rotationMatrix();
     mOw = Twc.translation();
+
+    std::cout<<"x : " << mOw[0] <<std::endl<< "z : " << mOw[2]<<std::endl<<std::endl;
+    
+    juno_x = mOw[0];
+    juno_z = mOw[2];
+
+    // if( (0 < juno_x&&juno_x < 2.2) && ( (juno_z > 0.813*juno_x + -0.163-1) && (juno_z <0.813*juno_x + 0.36))){
+    //     std::cout<<"between HD and NH"<<std::endl;
+    // }
+    // else if( (2.15 < juno_x) && (1.9 < juno_z&&juno_z < 3.4)){
+    //     std::cout<<"Corner 1"<<std::endl;
+    // }
+    // else if( (-2.7 < juno_x&&juno_x < 2.15) && (3.4 < juno_z&&juno_z < 9.1)){
+    //     std::cout<<"between HD and grass"<<std::endl;
+    // }
+    // else if( (-3.17 < juno_x&&juno_x < -2.8) && (9.1 < juno_z&&juno_z < 10.2)){
+    //     std::cout<<"in front of ATM"<<std::endl;
+    // }
+    // else if( (-2.8 < juno_x&&juno_x < -0.35) && (9.1 < juno_z&&juno_z < 10.2)){
+    //     std::cout<<"in front of ATM"<<std::endl;
+    // }
+    // else{
+    //     std::cout<<"Out of boundary"<<std::endl;
+    // }
+
+
     mRcw = mTcw.rotationMatrix();
     mtcw = mTcw.translation();
 }

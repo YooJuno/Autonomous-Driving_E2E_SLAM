@@ -305,6 +305,9 @@ public:
 
 private:
 
+    float juno_x;
+    float juno_z; 
+
     // Undistort keypoints given OpenCV distortion parameters.
     // Only for the RGB-D case. Stereo must be already rectified!
     // (called in the constructor).

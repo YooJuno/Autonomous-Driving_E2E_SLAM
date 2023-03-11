@@ -3340,6 +3340,7 @@ void Tracking::CreateNewKeyFrame()
     mpLastKeyFrame = pKF;
 }
 
+// juno
 void Tracking::SearchLocalPoints()
 {
     // Do not search map points already matched

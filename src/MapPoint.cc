@@ -235,7 +235,7 @@ void MapPoint::SetBadFlag()
         }
     }
 
-    mpMap->EraseMapPoint(this);
+    // mpMap->EraseMapPoint(this); juno map load/save segmantstion fault
 }
 
 MapPoint* MapPoint::GetReplaced()

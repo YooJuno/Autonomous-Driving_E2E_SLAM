@@ -118,9 +118,13 @@ int main(int argc, char **argv)
 #endif
         // Pass the image to the SLAM system
         Sophus::SE3f juno_tcw = SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
-        Eigen::Matrix4f T = juno_tcw.matrix(); // Convert Sophus::SE3f to Eigen::Matrix4f
-        double x = T(0, 3); // Extract x value from translation part
-        double z = T(2, 3); // Extract z value from translation part
+        // Eigen::Matrix4f T = juno_tcw.matrix(); // Convert Sophus::SE3f to Eigen::Matrix4f
+        // double x = T(0, 3); // Extract x value from translation part
+        // double z = T(2, 3); // Extract z value from translation part
+
+        Eigen::Matrix<float,3,1> mOw = juno_tcw.translation();
+        double x = mOw[0]; // Extract x value from translation part
+        double z = mOw[2]; // Extract z value from translation part
 
         string msg = to_string(x) + "," + to_string(z);
 

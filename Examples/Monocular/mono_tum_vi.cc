@@ -16,6 +16,7 @@
 #include <pthread.h>
 
 
+
 #include<System.h>
 
 #define _WEBCAM_BUILD_
@@ -77,6 +78,7 @@ int main(int argc, char **argv)
     // Main loop
     while(true)
     {
+
 
         // if ((bytes = recv(sokt, iptr, imgSize , MSG_WAITALL)) == -1) {
         //     std::cerr << "recv failed, received bytes = " << bytes << std::endl;

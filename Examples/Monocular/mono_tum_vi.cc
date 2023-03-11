@@ -103,12 +103,7 @@ int main(int argc, char **argv)
             break;
         }
 
-        char* msg = "check";
-        // 이미지 수신 후 클라이언트에게 "check" 메시지 보내기
-        if (send(clientfd, msg, 5, 0) != 5) {
-            cout << "Failed to send check message." << endl;
-            break;
-        }
+        
 
 
 
@@ -122,8 +117,19 @@ int main(int argc, char **argv)
         std::chrono::monotonic_clock::time_point nowT = std::chrono::monotonic_clock::now();
 #endif
         // Pass the image to the SLAM system
-        SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
-        
+        Sophus::SE3f juno_tcw = SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
+        Eigen::Matrix4f T = juno_tcw.matrix(); // Convert Sophus::SE3f to Eigen::Matrix4f
+        double x = T(0, 3); // Extract x value from translation part
+        double z = T(2, 3); // Extract z value from translation part
+
+        string msg = to_string(x) + "," + to_string(z);
+
+
+        // 이미지 수신 후 클라이언트에게 "check" 메시지 보내기
+        if (send(clientfd, msg.c_str(), msg.length(), 0) != msg.length()) {
+            cout << "Failed to send data." << endl;
+            break;
+        }
     }
         
     // Stop all threads

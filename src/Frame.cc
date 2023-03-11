@@ -477,6 +477,7 @@ void Frame::UpdatePoseMatrices()
 
     std::cout<<"x : " << mOw[0] <<std::endl<< "z : " << mOw[2]<<std::endl<<std::endl;
     
+    
     juno_x = mOw[0];
     juno_z = mOw[2];
 

@@ -110,7 +110,7 @@ Directory `Examples` contains several demo programs and calibration files to run
 ```
 ./Examples/Stereo-Inertial/stereo_inertial_realsense_D435i Vocabulary/ORBvoc.txt ./Examples/Stereo-Inertial/RealSense_D435i.yaml
 ```
-
+<!-- 
 # 5. EuRoC Examples
 [EuRoC dataset](http://projects.asl.ethz.ch/datasets/doku.php?id=kmavvisualinertialdatasets) was recorded with two pinhole cameras and an inertial sensor. We provide an example script to launch EuRoC sequences in all the sensor configurations.
 
@@ -129,7 +129,7 @@ EuRoC provides ground truth for each sequence in the IMU body reference. As pure
 Execute the following script to process sequences and compute the RMS ATE:
 ```
 ./euroc_eval_examples
-```
+``` -->
 
 # 6. TUM-VI Examples
 [TUM-VI dataset](https://vision.in.tum.de/data/datasets/visual-inertial-dataset) was recorded with two fisheye cameras and an inertial sensor.
@@ -142,7 +142,7 @@ Execute the following script to process sequences and compute the RMS ATE:
 ```
 ./tum_vi_examples
 ```
-
+<!-- 
 ## Evaluation
 In TUM-VI ground truth is only available in the room where all sequences start and end. As a result the error measures the drift at the end of the sequence. 
 
@@ -232,4 +232,4 @@ Once ORB-SLAM3 has loaded the vocabulary, press space in the rosbag tab.
 A flag in `include\Config.h` activates time measurements. It is necessary to uncomment the line `#define REGISTER_TIMES` to obtain the time stats of one execution which is shown at the terminal and stored in a text file(`ExecTimeMean.txt`).
 
 # 9. Calibration
-You can find a tutorial for visual-inertial calibration and a detailed description of the contents of valid configuration files at  `Calibration_Tutorial.pdf`
+You can find a tutorial for visual-inertial calibration and a detailed description of the contents of valid configuration files at  `Calibration_Tutorial.pdf` -->

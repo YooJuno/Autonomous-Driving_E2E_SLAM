@@ -13,6 +13,7 @@ using namespace std;
 using namespace cv;
 
 
+
 int main(){
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
@@ -35,6 +36,7 @@ int main(){
         return 1;
     }
     
+
     sockaddr_in client;
     socklen_t clientSize = sizeof(client);
     int clientfd = accept(sockfd, (sockaddr*)&client, &clientSize);

@@ -8,14 +8,14 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#define PORT 8485
+// #define PORT 8485
 
 using namespace std;
 using namespace cv;
 
 
 
-int main() {
+int main(int argc, char** argv) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
         cout << "Failed to create socket." << endl;
@@ -25,8 +25,8 @@ int main() {
     sockaddr_in server;
     server.sin_family = AF_INET;
     // server.sin_addr.s_addr = inet_addr("127.0.0.1"); // 자신의 서버 주소
-    server.sin_addr.s_addr = inet_addr("192.168.1.103"); // 외부 서버 주소
-    server.sin_port = htons(PORT);
+    server.sin_addr.s_addr = inet_addr(argv[1]); // 외부 서버 주소
+    server.sin_port = htons(atoi(argv[2]));
 
     if (connect(sockfd, (sockaddr*)&server, sizeof(server)) == -1) {
         cout << "Failed to connect to server." << endl;

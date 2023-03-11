@@ -7,20 +7,28 @@
 ./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml <PORT>
 
 
-[CLIENT Sender 컴파일]
+
+
+
+[CLIENT_Sender 컴파일]
 g++ -o client client_snd.cpp $(pkg-config opencv4 --libs --cflags)
 
 
-[CLIENT Sender 실행]
+[CLIENT_Sender 실행]
 ./client <SERVER IP> <SERVER PORT>
+
+
+
+
+
+
+
+
 
 
 
 [.h5 만들기 --> Train_E2E]
 python3 main.py --csv_name /home/ORB_SLAM3_juno/Data/driving_log.csv
-
-
-
 
 
 [.onnx 만들기 --> Train_E2E]

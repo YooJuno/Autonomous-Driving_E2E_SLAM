@@ -122,7 +122,7 @@ int main(int argc, char **argv)
         std::chrono::monotonic_clock::time_point nowT = std::chrono::monotonic_clock::now();
 #endif
         // Pass the image to the SLAM system
-        Sophus::SE3f juno_tcw = SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
+        SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
         
     }
         

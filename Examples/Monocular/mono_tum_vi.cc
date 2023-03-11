@@ -59,23 +59,12 @@ int main(int argc, char **argv)
         return 1;
     }
     
-    
-
-
-
-
-
-    
     ORB_SLAM3::System SLAM(argv[1], argv[2], ORB_SLAM3::System::MONOCULAR, true);
     cout << endl << "-------" << endl;
     
 
-#ifdef COMPILEDWITHC11
-    std::chrono::steady_clock::time_point initT = std::chrono::steady_clock::now();
-#else
-    std::chrono::monotonic_clock::time_point initT = std::chrono::monotonic_clock::now();
-#endif
 
+    std::chrono::monotonic_clock::time_point initT = std::chrono::monotonic_clock::now();
 
     // Main loop
     while(true)
@@ -103,19 +92,9 @@ int main(int argc, char **argv)
             break;
         }
 
-        
 
-
-
-
-
-
-
-#ifdef COMPILEDWITHC11
-        std::chrono::steady_clock::time_point nowT = std::chrono::steady_clock::now();
-#else
         std::chrono::monotonic_clock::time_point nowT = std::chrono::monotonic_clock::now();
-#endif
+
         // Pass the image to the SLAM system
         Sophus::SE3f juno_tcw = SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
         // Eigen::Matrix4f T = juno_tcw.matrix(); // Convert Sophus::SE3f to Eigen::Matrix4f

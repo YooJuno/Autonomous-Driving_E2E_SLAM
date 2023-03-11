@@ -15,7 +15,7 @@
 #include <string.h>
 #include <pthread.h>
 
-#include<opencv4/opencv2/core/core.hpp>
+
 
 #include<System.h>
 
@@ -23,66 +23,45 @@
 
 using namespace std;
 using namespace cv;
-
+#define PORT 8485
 
 int main(int argc, char **argv)
 {
 #ifdef _WEBCAM_BUILD_
 
-
-
-
-    int         sokt;
-    char*       serverIP;
-    int         serverPort;
-
-    if (argc < 3) {
-           std::cerr << "Usage: cv_video_cli <serverIP> <serverPort> " << std::endl;
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd == -1) {
+        cout << "Failed to create socket." << endl;
+        return 1;
     }
-
-    serverIP   = argv[3];
-    serverPort = atoi(argv[4]);
-
-    struct  sockaddr_in serverAddr;
-    socklen_t           addrLen = sizeof(struct sockaddr_in);
-
-    if ((sokt = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-        std::cerr << "socket() failed" << std::endl;
+    
+    sockaddr_in server;
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons(PORT);
+    
+    if (bind(sockfd, (sockaddr*)&server, sizeof(server)) == -1) {
+        cout << "Failed to bind socket." << endl;
+        return 1;
     }
-
-    serverAddr.sin_family = PF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr(serverIP);
-    serverAddr.sin_port = htons(serverPort);
-
-    if (connect(sokt, (sockaddr*)&serverAddr, addrLen) < 0) {
-        std::cerr << "connect() failed!" << std::endl;
+    
+    if (listen(sockfd, 10) == -1) {
+        cout << "Failed to listen on socket." << endl;
+        return 1;
+    }
+    
+    sockaddr_in client;
+    socklen_t clientSize = sizeof(client);
+    int clientfd = accept(sockfd, (sockaddr*)&client, &clientSize);
+    if (clientfd == -1) {
+        cout << "Failed to accept connection." << endl;
+        return 1;
     }
     
     
 
 
 
-    //----------------------------------------------------------
-    //OpenCV Code
-    //----------------------------------------------------------
-
-    Mat img;
-    img = Mat::zeros(768 , 1024, CV_8UC3);    
-    // img = Mat::zeros(960 , 1280, CV_8UC3); // webcam
-    int imgSize = img.total() * img.elemSize();
-    uchar *iptr = img.data;
-    int bytes = 0;
-    int key;
-
-    //make img continuos
-    if ( ! img.isContinuous() ) { 
-          img = img.clone();
-    }
-        
-    std::cout << "Image Size:" << imgSize << std::endl;
-
-
-    // namedWindow("CV Video Client",1);
 
 
     
@@ -100,13 +79,27 @@ int main(int argc, char **argv)
     while(true)
     {
 
-        if ((bytes = recv(sokt, iptr, imgSize , MSG_WAITALL)) == -1) {
-            std::cerr << "recv failed, received bytes = " << bytes << std::endl;
+        // if ((bytes = recv(sokt, iptr, imgSize , MSG_WAITALL)) == -1) {
+        //     std::cerr << "recv failed, received bytes = " << bytes << std::endl;
+        // }
+        uint32_t size = 0;
+        if (recv(clientfd, &size, sizeof(size), MSG_WAITALL) != sizeof(size)) {
+            cout << "Failed to receive size." << endl;
+            break;
         }
         
-        // cv::imshow("CV Video Client", img); 
-      
-        // cv::waitKey(33);
+        vector<char> buffer(size);
+        if (recv(clientfd, buffer.data(), size, MSG_WAITALL) != size) {
+            cout << "Failed to receive data." << endl;
+            break;
+        }
+        
+        Mat image = imdecode(buffer, IMREAD_COLOR);
+        if (image.empty()) {
+            cout << "Failed to decode image." << endl;
+            break;
+        }
+
 
 
 
@@ -119,7 +112,7 @@ int main(int argc, char **argv)
         std::chrono::monotonic_clock::time_point nowT = std::chrono::monotonic_clock::now();
 #endif
         // Pass the image to the SLAM system
-        SLAM.TrackMonocular(img, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
+        SLAM.TrackMonocular(image, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
     }
     // Stop all threads
     SLAM.Shutdown();

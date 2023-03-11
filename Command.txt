@@ -3,9 +3,16 @@
 ./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml 
 
 
-
 [SLAM 실행 - TCP]
-./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml <IP> <PORT>
+./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml <PORT>
+
+
+[CLIENT Sender 컴파일]
+g++ -o client client_snd.cpp $(pkg-config opencv4 --libs --cflags)
+
+
+[CLIENT Sender 실행]
+./client <SERVER IP> <SERVER PORT>
 
 
 

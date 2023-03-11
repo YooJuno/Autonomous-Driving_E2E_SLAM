@@ -23,7 +23,8 @@
 
 using namespace std;
 using namespace cv;
-#define PORT 8485
+
+// #define PORT 8485
 
 int main(int argc, char **argv)
 {
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
     sockaddr_in server;
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(PORT);
+    server.sin_port = htons(atoi(argv[3]));
     
     if (bind(sockfd, (sockaddr*)&server, sizeof(server)) == -1) {
         cout << "Failed to bind socket." << endl;

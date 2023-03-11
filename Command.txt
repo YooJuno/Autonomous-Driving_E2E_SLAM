@@ -3,7 +3,7 @@
 ./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml 
 
 
-[SLAM 실행 - TCP]
+[SERVER_SLAM 실행 - TCP]
 ./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml <PORT>
 
 

@@ -65,6 +65,22 @@ int main(int argc, char** argv) {
             break;
         }
 
+        // 이미지를 전송한 후, 서버로부터 메시지 수신
+        vector<char> buf(100);
+        int len = recv(sockfd, buf.data(), buf.size(), 0);
+        if (len > 0) {
+            buf.resize(len);
+            string msg(buf.begin(), buf.end());
+            cout << "Received message from server: " << msg << endl;
+        } 
+        else if (len == 0) {
+            cout << "Server disconnected." << endl;
+        } 
+        else {
+            cout << "Failed to receive message from server." << endl;
+        }
+
+
         // usleep(1000); // 1ms 대기
     }
 

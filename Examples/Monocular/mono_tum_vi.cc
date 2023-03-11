@@ -76,6 +76,7 @@ int main(int argc, char **argv)
     std::chrono::monotonic_clock::time_point initT = std::chrono::monotonic_clock::now();
 #endif
 
+
     // Main loop
     while(true)
     {
@@ -96,9 +97,16 @@ int main(int argc, char **argv)
             break;
         }
         
-        Mat image = imdecode(buffer, IMREAD_COLOR);
-        if (image.empty()) {
+        Mat frame = imdecode(buffer, IMREAD_COLOR);
+        if (frame.empty()) {
             cout << "Failed to decode image." << endl;
+            break;
+        }
+
+        char* msg = "check";
+        // 이미지 수신 후 클라이언트에게 "check" 메시지 보내기
+        if (send(clientfd, msg, 5, 0) != 5) {
+            cout << "Failed to send check message." << endl;
             break;
         }
 
@@ -114,8 +122,10 @@ int main(int argc, char **argv)
         std::chrono::monotonic_clock::time_point nowT = std::chrono::monotonic_clock::now();
 #endif
         // Pass the image to the SLAM system
-        SLAM.TrackMonocular(image, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
+        SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
+        
     }
+        
     // Stop all threads
     SLAM.Shutdown();
 

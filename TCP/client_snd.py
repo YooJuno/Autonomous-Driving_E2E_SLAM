@@ -14,6 +14,8 @@ cap = cv2.VideoCapture(-1)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
 
+
+
 print(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 print(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -35,6 +37,7 @@ while True:
     
     # Sleep for 1ms
     cv2.waitKey(1)
+
 
 cap.release()
 sock.close()

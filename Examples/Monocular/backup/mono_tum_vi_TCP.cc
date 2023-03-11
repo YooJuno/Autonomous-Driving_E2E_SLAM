@@ -1,3 +1,4 @@
+
 #include<iostream>
 #include<algorithm>
 #include<fstream>
@@ -22,20 +23,6 @@
 
 using namespace std;
 using namespace cv;
-
-void *display(void *);
-
-int capDev = 0;
-
-
-
-void error_handling(const char *message)
-{
-    fputs(message, stderr);
-    fputc('\n', stderr);
-    exit(1);
-}          
-
 
 
 int main(int argc, char **argv)
@@ -112,9 +99,6 @@ int main(int argc, char **argv)
     // Main loop
     while(true)
     {
-        
-   
-   
 
         if ((bytes = recv(sokt, iptr, imgSize , MSG_WAITALL)) == -1) {
             std::cerr << "recv failed, received bytes = " << bytes << std::endl;

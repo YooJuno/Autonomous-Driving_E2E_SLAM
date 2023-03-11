@@ -45,7 +45,7 @@ Camera.height: 768
 ORBextractor.nFeatures: 1250 # Tested with 1250
 
 # Camera frames per second 
-Camera.fps: 30
+Camera.fps: 10
 
 ORBextractor.iniThFAST: 60
 ORBextractor.minThFAST: 30

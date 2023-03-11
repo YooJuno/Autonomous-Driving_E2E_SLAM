@@ -1,11 +1,11 @@
 
 [SLAM 실행 - Webcam]
-./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml ./Trained_Model/model-60.onnx
+./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml 
 
 
 
 [SLAM 실행 - TCP]
-./bin/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml ./Trained_Model/model-60.onnx <IP> <PORT>
+./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml <IP> <PORT>
 
 
 

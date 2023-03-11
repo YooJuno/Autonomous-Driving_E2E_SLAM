@@ -79,6 +79,7 @@ int main(int argc, char **argv)
     while(true)
     {
 
+
         // if ((bytes = recv(sokt, iptr, imgSize , MSG_WAITALL)) == -1) {
         //     std::cerr << "recv failed, received bytes = " << bytes << std::endl;
         // }

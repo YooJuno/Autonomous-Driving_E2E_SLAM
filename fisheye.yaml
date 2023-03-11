@@ -43,7 +43,8 @@ Camera.height: 768
 
 # ORB Extractor: Number of features per image
 ORBextractor.nFeatures: 1250 # Tested with 1250
-
+ 
+ 
 # Camera frames per second 
 Camera.fps: 10
 

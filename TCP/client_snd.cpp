@@ -13,6 +13,8 @@
 using namespace std;
 using namespace cv;
 
+
+
 int main() {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
@@ -30,6 +32,7 @@ int main() {
         cout << "Failed to connect to server." << endl;
         return 1;
     }
+
 
     VideoCapture cap(-1);
     cap.set(CAP_PROP_FRAME_WIDTH, 1024);

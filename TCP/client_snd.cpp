@@ -34,7 +34,8 @@ int main(int argc, char** argv) {
     }
 
 
-    VideoCapture cap(-1);
+    // VideoCapture cap(-1);
+    VideoCapture cap("/home/yoojunho/바탕화면/v1.mp4");
     cap.set(CAP_PROP_FRAME_WIDTH, 1024);
     cap.set(CAP_PROP_FRAME_HEIGHT, 768);
     cout << cap.get(CAP_PROP_FPS) << endl;

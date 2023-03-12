@@ -303,11 +303,16 @@ public:
     double mTimeStereoMatch;
 #endif
 
+
+
+
+
+
+
 private:
 
 
-    float juno_x;
-    float juno_z; 
+    
 
     // Undistort keypoints given OpenCV distortion parameters.
     // Only for the RGB-D case. Stereo must be already rectified!
@@ -327,6 +332,9 @@ private:
     std::mutex *mpMutexImu;
 
 public:
+
+    float juno_x;
+    float juno_z; 
     GeometricCamera* mpCamera, *mpCamera2;
 
     //Number of KeyPoints extracted in the left and right images

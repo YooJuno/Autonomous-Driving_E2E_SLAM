@@ -3247,6 +3247,9 @@ void Tracking::CreateNewKeyFrame()
     if(mSensor!=System::MONOCULAR && mSensor != System::IMU_MONOCULAR) // TODO check if incluide imu_stereo
     {
         mCurrentFrame.UpdatePoseMatrices();
+        
+        std::cout<<mCurrentFrame.juno_x<<std::endl;
+        std::cout<<mCurrentFrame.juno_z<<std::endl;
         // cout << "create new MPs" << endl;
         // We sort points by the measured depth by the stereo/RGBD sensor.
         // We create all those MapPoints whose depth < mThDepth.

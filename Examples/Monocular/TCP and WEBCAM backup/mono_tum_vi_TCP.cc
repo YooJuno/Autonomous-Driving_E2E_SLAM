@@ -1,4 +1,7 @@
 
+
+
+
 #include<iostream>
 #include<algorithm>
 #include<fstream>
@@ -6,7 +9,6 @@
 
 // TCP header
 #include "opencv4/opencv2/opencv.hpp"
-// #include <iostream>
 #include <sys/socket.h> 
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
@@ -14,7 +16,6 @@
 #include <unistd.h> 
 #include <string.h>
 #include <pthread.h>
-
 
 
 #include<System.h>
@@ -28,7 +29,6 @@ using namespace cv;
 
 int main(int argc, char **argv)
 {
-#ifdef _WEBCAM_BUILD_
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
@@ -59,16 +59,10 @@ int main(int argc, char **argv)
         return 1;
     }
     
-    
-
-
-
-
-
-    
     ORB_SLAM3::System SLAM(argv[1], argv[2], ORB_SLAM3::System::MONOCULAR, true);
     cout << endl << "-------" << endl;
     
+
 
 #ifdef COMPILEDWITHC11
     std::chrono::steady_clock::time_point initT = std::chrono::steady_clock::now();
@@ -78,12 +72,8 @@ int main(int argc, char **argv)
 
     // Main loop
     while(true)
-    {
-
-
-        // if ((bytes = recv(sokt, iptr, imgSize , MSG_WAITALL)) == -1) {
-        //     std::cerr << "recv failed, received bytes = " << bytes << std::endl;
-        // }
+    {   
+        cout<<"frame"<<endl;
         uint32_t size = 0;
         if (recv(clientfd, &size, sizeof(size), MSG_WAITALL) != sizeof(size)) {
             cout << "Failed to receive size." << endl;
@@ -96,16 +86,11 @@ int main(int argc, char **argv)
             break;
         }
         
-        Mat image = imdecode(buffer, IMREAD_COLOR);
-        if (image.empty()) {
+        Mat frame = imdecode(buffer, IMREAD_COLOR);
+        if (frame.empty()) {
             cout << "Failed to decode image." << endl;
             break;
         }
-
-
-
-
-
 
 
 #ifdef COMPILEDWITHC11
@@ -113,17 +98,35 @@ int main(int argc, char **argv)
 #else
         std::chrono::monotonic_clock::time_point nowT = std::chrono::monotonic_clock::now();
 #endif
-        // Pass the image to the SLAM system
-        SLAM.TrackMonocular(image, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
-    }
-    // Stop all threads
-    SLAM.Shutdown();
 
-    //slam->SaveSeperateKeyFrameTrajectoryTUM("KeyFrameTrajectory-1.txt", "KeyFrameTrajectory-2.txt", "KeyFrameTrajectory-3.txt");
+        // Pass the image to the SLAM system
+        Sophus::SE3f juno_tcw = SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
+
+        // Eigen::Matrix4f T = juno_tcw.matrix(); // Convert Sophus::SE3f to Eigen::Matrix4f
+        // double x = T(0, 3); // Extract x value from translation part
+        // double z = T(2, 3); // Extract z value from translation part
+
+                        // Eigen::Matrix<float,3,1> juno_mOw = juno_tcw.translation();
+                        // double x = juno_mOw[0]; // Extract x value from translation part
+                        // double z = juno_mOw[2]; // Extract z value from translation part
+
+        // 현재 프레임의 x, z 좌표 출력
+        std::cout << "---x : " << juno_tcw.translation()(0) << std::endl;
+        std::cout << "---z : " << juno_tcw.translation()(2) << std::endl;
+        double x = juno_tcw.translation()(0); // Extract x value from translation part
+        double z = juno_tcw.translation()(2); // Extract z value from translation part
+
+        string msg = to_string(x) + "," + to_string(z);
+
+        // 이미지 수신 후 클라이언트에게 "check" 메시지 보내기
+        if (send(clientfd, msg.c_str(), msg.length(), 0) != msg.length()) {
+            cout << "Failed to send data." << endl;
+            break;
+        }
+    }
+        
+    SLAM.Shutdown();
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
 
-#else
-    
-#endif
     return 0;
 }

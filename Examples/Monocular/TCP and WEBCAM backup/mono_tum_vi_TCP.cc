@@ -90,9 +90,7 @@ int main(int argc, char **argv)
             cout << "Failed to decode image." << endl;
             break;
         }
-        for(int hd=0 ; hd<10 ; hd++){
-            cout<< "juno"<< endl;
-        }
+        
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point nowT = std::chrono::steady_clock::now();
 #else

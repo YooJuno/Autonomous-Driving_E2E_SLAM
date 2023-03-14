@@ -11,7 +11,8 @@ SERVER_ADDRESS = "192.168.1.103"
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((SERVER_ADDRESS, PORT))
 
-cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
+# cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
+cap = cv2.VideoCapture(-1)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
 

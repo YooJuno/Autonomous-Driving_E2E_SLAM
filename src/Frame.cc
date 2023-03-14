@@ -481,6 +481,8 @@ void Frame::UpdatePoseMatrices()
     juno_x = mOw[0];
     juno_z = mOw[2];
 
+    
+
     // if( (0 < juno_x&&juno_x < 2.2) && ( (juno_z > 0.813*juno_x + -0.163-1) && (juno_z <0.813*juno_x + 0.36))){
     //     std::cout<<"between HD and NH"<<std::endl;
     // }

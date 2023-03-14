@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
             break;
         }
 
-        // 이미지를 전송한 후, 서버로부터 메시지 수신
+        // 이미지를 전송한 후, 서버로부터 좌표 수신
         vector<char> buf(100);
         int len = recv(sockfd, buf.data(), buf.size(), 0);
         if (len > 0) {

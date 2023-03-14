@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#define PORT 8485
+#define PORT 6395
 
 using namespace std;
 using namespace cv;

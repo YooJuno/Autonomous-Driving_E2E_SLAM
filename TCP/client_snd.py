@@ -12,8 +12,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((SERVER_ADDRESS, PORT))
 
 cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
-# cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
-# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
 
 
 
@@ -29,7 +29,7 @@ while True:
         print("Failed to capture frame.")
         break
     
-    encoded_image = cv2.imencode(".jpg", frame)[1].tostring()
+    encoded_image = cv2.imencode(".jpg", frame)[1].tobytes()
 
     size = len(encoded_image).to_bytes(4,byteorder='little')
     

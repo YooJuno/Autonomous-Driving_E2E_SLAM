@@ -73,7 +73,6 @@ int main(int argc, char **argv)
     // Main loop
     while(true)
     {   
-        cout<<"frame"<<endl;
         uint32_t size = 0;
         if (recv(clientfd, &size, sizeof(size), MSG_WAITALL) != sizeof(size)) {
             cout << "Failed to receive size." << endl;
@@ -91,8 +90,9 @@ int main(int argc, char **argv)
             cout << "Failed to decode image." << endl;
             break;
         }
-
-
+        for(int hd=0 ; hd<10 ; hd++){
+            cout<< "juno"<< endl;
+        }
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point nowT = std::chrono::steady_clock::now();
 #else
@@ -102,17 +102,11 @@ int main(int argc, char **argv)
         // Pass the image to the SLAM system
         Sophus::SE3f juno_tcw = SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
 
-        // Eigen::Matrix4f T = juno_tcw.matrix(); // Convert Sophus::SE3f to Eigen::Matrix4f
-        // double x = T(0, 3); // Extract x value from translation part
-        // double z = T(2, 3); // Extract z value from translation part
-
                         // Eigen::Matrix<float,3,1> juno_mOw = juno_tcw.translation();
                         // double x = juno_mOw[0]; // Extract x value from translation part
                         // double z = juno_mOw[2]; // Extract z value from translation part
 
         // 현재 프레임의 x, z 좌표 출력
-        std::cout << "---x : " << juno_tcw.translation()(0) << std::endl;
-        std::cout << "---z : " << juno_tcw.translation()(2) << std::endl;
         double x = juno_tcw.translation()(0); // Extract x value from translation part
         double z = juno_tcw.translation()(2); // Extract z value from translation part
 
@@ -123,6 +117,8 @@ int main(int argc, char **argv)
             cout << "Failed to send data." << endl;
             break;
         }
+        // cout<<clientfd<<endl;
+        // exit(-1);
     }
         
     SLAM.Shutdown();

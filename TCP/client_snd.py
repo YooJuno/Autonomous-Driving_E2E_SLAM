@@ -4,9 +4,8 @@ import struct
 import pickle
 
 PORT = 6395
-# SERVER_ADDRESS = "127.0.0.1"
-SERVER_ADDRESS = "192.168.1.103"
-
+SERVER_ADDRESS = "127.0.0.1"
+# SERVER_ADDRESS = "192.168.1.103"
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((SERVER_ADDRESS, PORT))
@@ -15,8 +14,6 @@ sock.connect((SERVER_ADDRESS, PORT))
 cap = cv2.VideoCapture(-1)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
-
-
 
 print(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 print(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))

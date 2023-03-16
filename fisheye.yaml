@@ -2,7 +2,7 @@
 
 
 # System.SaveAtlasToFile: "test1"
-# System.LoadAtlasFromFile: "map1_5000_120_20"
+System.LoadAtlasFromFile: "CGVLAB"
 
 
 

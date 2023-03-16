@@ -13,7 +13,6 @@
 #include <string.h>
 #include <pthread.h>
 
-
 #include<System.h>
 
 #define _WEBCAM_BUILD_
@@ -21,11 +20,8 @@
 using namespace std;
 using namespace cv;
 
-// #define PORT 8485
-
 int main(int argc, char **argv)
 {
-
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
         cout << "Failed to create socket." << endl;
@@ -96,24 +92,6 @@ int main(int argc, char **argv)
 
         // Pass the image to the SLAM system
         Sophus::SE3f juno_tcw = SLAM.TrackMonocular(frame, std::chrono::duration_cast<std::chrono::duration<double> >(nowT-initT).count());
-
-                        Eigen::Matrix<float,3,1> juno_mOw = juno_tcw.translation();
-                        double x = juno_mOw[0]; // Extract x value from translation part
-                        double z = juno_mOw[2]; // Extract z value from translation part
-
-        // 현재 프레임의 x, z 좌표 출력
-        // double x = juno_tcw.translation()(0); // Extract x value from translation part
-        // double z = juno_tcw.translation()(2); // Extract z value from translation part
-
-        string msg = to_string(x) + "," + to_string(z);
-
-        // 이미지 수신 후 클라이언트에게 좌표 송신
-        if (send(clientfd, msg.c_str(), msg.length(), 0) != msg.length()) {
-            cout << "Failed to send data." << endl;
-            break;
-        }
-        // cout<<clientfd<<endl;
-        // exit(-1);
     }
         
     SLAM.Shutdown();

@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
         uint32_t size = buffer.size();
         if (send(sockfd, &size, sizeof(size), 0) != sizeof(size)) {
             cout << "Failed to send size." << endl;
-            break;
+            break; 
         }
 
         if (send(sockfd, buffer.data(), size, 0) != size) {

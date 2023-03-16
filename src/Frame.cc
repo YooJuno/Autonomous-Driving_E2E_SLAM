@@ -30,6 +30,17 @@
 #include <include/CameraModels/Pinhole.h>
 #include <include/CameraModels/KannalaBrandt8.h>
 
+#include <cstring>
+#include <iostream>
+#include <sys/socket.h> 
+#include <arpa/inet.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <unistd.h> 
+#include <string.h>
+#include <pthread.h>
+
+
 namespace ORB_SLAM3
 {
 
@@ -479,6 +490,13 @@ void Frame::UpdatePoseMatrices()
     
     juno_x = mOw[0];
     juno_z = mOw[2];
+
+    std::string msg = to_string(juno_x) + "," + to_string(juno_z) + ",";
+
+    // std::string msg  = "hi";
+
+    send(4, msg.c_str(), msg.length(), 0) ;
+
 
     // if( (0 < juno_x&&juno_x < 2.2) && ( (juno_z > 0.813*juno_x + -0.163-1) && (juno_z <0.813*juno_x + 0.36))){
     //     std::cout<<"between HD and NH"<<std::endl;

@@ -240,45 +240,45 @@ class StringThread(threading.Thread):
             data = self.conn.recv(1024).decode()
             self.conn.recv(1024).decode()
 
-            print(data)
-            
-            # if not data:
-            #     break
-            # data = data.split(',')
 
-            # juno_x = float(data[0])
-            # juno_z = float(data[1])
             
-            # print("x : ", juno_x, "\nz : " , juno_z)
-            # print()
+            if not data:
+                break
+            data = data.split(',')
 
-            # lock.acquire()
-            # shared_var = 0 # 범위 안에 있음
-            # lock.release()
+            juno_x = float(data[0])
+            juno_z = float(data[1])
             
-            # if ( 0 < juno_x and juno_x < 2.2) and ( (juno_z > 0.813*juno_x + -0.163-1) and (juno_z <0.813*juno_x + 0.36) ):
-            #     print("between HD and NH")
-            
-            # elif (2.15 < juno_x) and (1.9 < juno_z and juno_z < 3.4):
-            #     print("Corner 1")
-            
-            # elif ( -2.7 < juno_x and juno_x < 2.15) and (3.4 < juno_z and juno_z < 9.1 ):
-            #     print("between HD and grass")
-            
-            # elif (-3.17 < juno_x and juno_x < -2.8) and (9.1 < juno_z and juno_z < 10.2):
-            #     print("in front of ATM")
-            
-            # elif (-2.8 < juno_x and juno_x < -0.35) and (9.1 < juno_z and juno_z < 10.2):
-            #     print("in front of ATM")
-            
-            # else:
-            #     print("Out of boundary")
-            #     lock.acquire()
-            #     shared_var = 1
-            #     lock.release()
+            print("x : ", juno_x, "\nz : " , juno_z)
+            print()
 
-            # if shared_var == 1:
-            #     ser.write(b's')
+            lock.acquire()
+            shared_var = 0 # 범위 안에 있음
+            lock.release()
+            
+            if ( 0 < juno_x and juno_x < 2.2) and ( (juno_z > 0.813*juno_x + -0.163-1) and (juno_z <0.813*juno_x + 0.36) ):
+                print("between HD and NH")
+            
+            elif (2.15 < juno_x) and (1.9 < juno_z and juno_z < 3.4):
+                print("Corner 1")
+            
+            elif ( -2.7 < juno_x and juno_x < 2.15) and (3.4 < juno_z and juno_z < 9.1 ):
+                print("between HD and grass")
+            
+            elif (-3.17 < juno_x and juno_x < -2.8) and (9.1 < juno_z and juno_z < 10.2):
+                print("in front of ATM")
+            
+            elif (-2.8 < juno_x and juno_x < -0.35) and (9.1 < juno_z and juno_z < 10.2):
+                print("in front of ATM")
+            
+            else:
+                print("Out of boundary")
+                lock.acquire()
+                shared_var = 1
+                lock.release()
+
+            if shared_var == 1:
+                ser.write(b's')
 
 
 

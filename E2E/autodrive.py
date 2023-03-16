@@ -101,14 +101,14 @@ def writePort(ser, data):
     print("send : ", data)
     ser.write(data)
 
-
 ser = serial.Serial(
-    port='/dev/ttyACM0',
-    baudrate=9600,
-    parity=serial.PARITY_NONE,
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS,
-        timeout=0)
+                    port='/dev/ttyACM0',
+                    baudrate=9600,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE,
+                    bytesize=serial.EIGHTBITS,
+                    timeout=0
+                )
 
 print(ser.portstr) #연결된 포트 확인.
 
@@ -153,32 +153,22 @@ if __name__ == '__main__':
     if(cap.isOpened() == False):
         print("Unable to read camera feed")
 
-
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
 
     cur_angle = 0
-    # cur_velocity = 2
 
     ser.write(b'w')
     ser.write(b'w')
 
     count = 0
 
-    (x,y), (w,h) = (0,140), (640, 200)
-
-
     while True:
 
         ret, frame = cap.read()
-        # frame = frame.resize(640,480)
-        frame_roi = frame[y:y+h, x:x+w]
         
-        cv2.imshow("autodrive", frame)
-
         retval, buffer = cv2.imencode('.jpg', frame)
         frame_str = base64.b64encode(buffer)
-
         
         image = Image.open(BytesIO(base64.b64decode(frame_str)))
         image = image.resize((320,160))
@@ -186,7 +176,7 @@ if __name__ == '__main__':
         image_array = np.array(image.copy())
         image_array = image_array[65:-25, :, :]
 
-            # transform RGB to BGR for cv2
+        # transform RGB to BGR for cv2
         image_array = image_array[:, :, ::-1]
         image_array = transformations(image_array)
         image_tensor = torch.Tensor(image_array)
@@ -202,8 +192,6 @@ if __name__ == '__main__':
         #steering_angle 값을 quantization을 해야함
         # steering_angle = steering_angle-0.253
         
-
-
         print(diff_angle)
         cur_angle = steering_angle
         cv2.waitKey(33)

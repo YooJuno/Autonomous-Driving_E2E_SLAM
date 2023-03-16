@@ -5,7 +5,7 @@
 
 
 import argparse
-import sys
+import os , sys
 import serial
 import time
 import threading
@@ -25,6 +25,9 @@ from io import BytesIO
 
 # juno
 import socket
+
+
+os.system("sudo chmod 777 /dev/ttyACM0")
 
 model = None
 prev_image_array = None
@@ -286,14 +289,12 @@ class StringThread(threading.Thread):
         self.conn.close()
 
 # 클라이언트 실행
-def client(_model):
+def client(_model, _ip, _port):
     # 서버 IP 주소와 포트 설정
-    HOST = '127.0.0.1'
-    PORT = 6395
-
+    
     # 서버에 연결
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((HOST, PORT))
+    s.connect((_ip, int(_port)))
 
     # 이미지 보내는 쓰레드 시작
     image_thread = ImageThread(s, _model)
@@ -306,12 +307,9 @@ def client(_model):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Auto Driving')
-    parser.add_argument(
-        '--model',
-        type=str,
-        default='../checkpoint/model-a-100_1.h5',
-        help='Path to model h5 file. Model should be on the same path.'
-    )
+    parser.add_argument('--model',type=str,default='../model/model-a-100_1.h5',help='')
+    parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
+    parser.add_argument('--PORT',type=str,default='6395',help='')
     args = parser.parse_args()
 
     model = NetworkNvidia()
@@ -338,4 +336,4 @@ if __name__ == '__main__':
 
 
 
-    client(model)
+    client(model, args.IP , args.PORT)

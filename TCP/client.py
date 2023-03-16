@@ -170,10 +170,6 @@ class ImageThread(threading.Thread):
 
 
 
-
-
-
-
             retval, buffer = cv2.imencode('.jpg', frame)
             frame_str = base64.b64encode(buffer)
             
@@ -218,10 +214,20 @@ class ImageThread(threading.Thread):
 
 
 
+            ########################### YOLO ###########################
+            ########################### YOLO ###########################
+            ########################### YOLO ###########################
+            ########################### YOLO ###########################
+            ########################### YOLO ###########################
+            ########################### YOLO ###########################
+            ########################### YOLO ###########################
+
+
+
         # 연결 종료
         self.conn.close()
 
-# 문자열을 받는 쓰레드
+# 좌표를 받는 쓰레드
 class StringThread(threading.Thread):
     def __init__(self, conn):
         threading.Thread.__init__(self)
@@ -246,7 +252,7 @@ class StringThread(threading.Thread):
             print()
 
             lock.acquire()
-            shared_var = 0
+            shared_var = 0 # 범위 안에 있음
             lock.release()
             
             if ( 0 < juno_x and juno_x < 2.2) and ( (juno_z > 0.813*juno_x + -0.163-1) and (juno_z <0.813*juno_x + 0.36) ):

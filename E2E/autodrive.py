@@ -103,17 +103,11 @@ def writePort(ser, data):
 
 
 ser = serial.Serial(
-
     port='/dev/ttyACM0',
-
     baudrate=9600,
-
     parity=serial.PARITY_NONE,
-
     stopbits=serial.STOPBITS_ONE,
-
     bytesize=serial.EIGHTBITS,
-
         timeout=0)
 
 print(ser.portstr) #연결된 포트 확인.
@@ -154,55 +148,41 @@ if __name__ == '__main__':
     PORT = '/dev/ttyACM0'
     # 연결
 
-    cap = cv2.VideoCapture(2)
+    cap = cv2.VideoCapture(-1)
 
     if(cap.isOpened() == False):
         print("Unable to read camera feed")
 
 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
 
     cur_angle = 0
     # cur_velocity = 2
-
-    #ser.write(b's') #initialize
-    #ser.flush()
-
-    # ser.write(b'w')
-    #ser.flush()
 
     ser.write(b'w')
     ser.write(b'w')
 
     count = 0
 
+    (x,y), (w,h) = (0,140), (640, 200)
 
 
     while True:
 
         ret, frame = cap.read()
-
-
-        #frame_roi = frame[y:y+h, x:x+w]
+        # frame = frame.resize(640,480)
+        frame_roi = frame[y:y+h, x:x+w]
         
-   # i#mg = frame
-
-        #frame = yolo.detect(frame)
         cv2.imshow("autodrive", frame)
 
+        retval, buffer = cv2.imencode('.jpg', frame)
+        frame_str = base64.b64encode(buffer)
 
-        cv2.imwrite('frame.jpeg', frame)
-        
-        with open('./frame.jpeg', 'rb') as frame:
-            frame_str = base64.b64encode(frame.read())
         
         image = Image.open(BytesIO(base64.b64decode(frame_str)))
         image = image.resize((320,160))
-            #image = frame
-            #print(image.format)
-            #print(image.mode)
-            #print(image.size)
+
         image_array = np.array(image.copy())
         image_array = image_array[65:-25, :, :]
 
@@ -214,104 +194,28 @@ if __name__ == '__main__':
         image_tensor = Variable(image_tensor)
 
         steering_angle = model(image_tensor).view(-1).data.numpy()[0] #angle
-        # steering_velocity = model(image_tensor).view(-1).data.numpy()[1] #velocity
-
-        print("\nprediction-angle:", steering_angle)
-        # print("prediction-vel:", steering_velocity)
-        print()
+        steering_angle = steering_angle * 20
+        diff_angle = steering_angle - cur_angle
+        # diff_angle = diff_angle / 10
+        diff_angle = int(diff_angle)
 
         #steering_angle 값을 quantization을 해야함
-        #steering_angle = steering_angle-0.253
+        # steering_angle = steering_angle-0.253
         
-        steering_angle = steering_angle * 20
-
-        print("actual angle : ", steering_angle)
-
-        print()
-        # print("cur _ vel : ", cur_velocity)
-        # print("pred _ velocity : ", steering_velocity)
 
 
-        diff_angle = steering_angle - cur_angle
-        #diff_angle = diff_angle / 10
-        diff_angle = int(diff_angle)
-        print("difference : ", diff_angle)
-
+        print(diff_angle)
         cur_angle = steering_angle
+        cv2.waitKey(33)
+        # if diff_angle == 0: 
+            
+        #     continue
+        # elif diff_angle > 0: #angle이 오른쪽으로 꺽여야함
+        #     for i in range(diff_angle) :
+        #         ser.write(b'd')
 
-        
-        #if count % 5 == 0 :
-        if diff_angle == 0: 
-            #ser.write(b'b')
-            cv2.waitKey(33)
-            # time.sleep(0.2)
-            continue
-        elif diff_angle > 0: #angle이 오른쪽으로 꺽여야함
-            for i in range(diff_angle) :
-                    # D 신호를 보내야 함
-                    #d = b'd'
-
-                ser.write(b'd')
-                ser.flush()
-                print("d signal was sent")
-                print()
-                # time.sleep(0.2)
-                    #time.sleep(0.2)
-        else : # angle이 왼쪽으로 꺽여야 함
-            for i in range(-diff_angle) :
-                    # a 신호를 보내야 함
-                    #a = b'a'
-                ser.write(b'a')
-                ser.flush()
-                print("a signal was sent")
-                print()
-                # time.sleep(0.2)
-                    #time.sleep(0.2)
-            #time.sleep(0.5)
-        #else :
-        #    ser.write(b'b')
-
-
-        # #velocity 
-        # # 수정했음 !!!!!!!!!!!!!!!!!!!!!!!!!!!!        
-        # if steering_velocity >= 1.5: #speed 2
-        #     if cur_velocity == 1:
-        #         ser.write(b'w')
-        #         ser.flush()
-        #         print("W signal was sent")
-        #         time.sleep(0.2)
-        #     elif cur_velocity == 0:
-        #         ser.write(b'w')
-        #         ser.write(b'w')
-        #         ser.flush()
-        #         print("W signal was sent")
-        #         print("W signal was sent")
-        #         time.sleep(0.2)
-        #     cur_velocity = 2
-        # elif steering_velocity >= 0.5: #speed 1
-        #     if cur_velocity == 2:
-        #         ser.write(b'x')
-        #         ser.flush()
-        #         print("X signal was sent")
-        #         time.sleep(0.2)
-        #     elif cur_velocity == 0:
-        #         ser.write(b'w')
-        #         ser.flush()
-        #         print("W signal was sent")
-        #         time.sleep(0.2)
-        #     cur_velocity = 1
-        # else: #speed 0
-        #     #if cur_velocity == 1:
-        #     ser.write(b's')
-        #     ser.flush()
-        #     print("S signal was sent")
-        #     time.sleep(0.2)
-        #     cur_velocity = 0
-
-
-        count += 1
-        # cv2.waitKey(33)
-    #cap.release()
-    #cv2.destroyAllWindows()
-    
+        # else : # angle이 왼쪽으로 꺽여야 함
+        #     for i in range(-diff_angle) :
+        #         ser.write(b'a')
+                
 

@@ -21,15 +21,14 @@ g++ -o client client_snd.cpp $(pkg-config opencv4 --libs --cflags)
 
 
 
+[STM32F411RE 연결]
+sudo chmod 777 /dev/ttyACM0
 
 
+[keyboard driving]
+g++ -o driving driving.cpp $(pkg-config --libs --cflags opencv4)
+./driving save 0
 
-
-
-
-[.h5 만들기 --> Train_E2E]
-python3 main.py --csv_name /home/ORB_SLAM3_juno/Data/driving_log.csv
-
-
-[.onnx 만들기 --> Train_E2E]
-python3 convert_to_onnx.py --ckpt /home/ORB_SLAM3_juno/Trained_Model/model-60.h5
+[autodrive]
+python3 autodrive.py --model model-100_1.h5
+python3 autodrive.py --model model-100_2.h5

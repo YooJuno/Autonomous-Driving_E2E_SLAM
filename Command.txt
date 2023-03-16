@@ -21,10 +21,3 @@ python3 client.py    --model ./model/model-a-100_1.h5    --IP <IP>    --PORT <PO
 g++ -o driving driving.cpp $(pkg-config --libs --cflags opencv4)
 ./driving save 0
 
-
-# 지울 예정
-[STM32F411RE 연결]
-sudo chmod 777 /dev/ttyACM0
-
-
-

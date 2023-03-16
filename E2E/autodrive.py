@@ -174,7 +174,9 @@ if __name__ == '__main__':
         image = image.resize((320,160))
 
         image_array = np.array(image.copy())
+        cv2.imshow("autodrive", image_array)
         image_array = image_array[65:-25, :, :]
+        cv2.imshow("autodrive_crop", image_array)
 
         # transform RGB to BGR for cv2
         image_array = image_array[:, :, ::-1]
@@ -195,15 +197,15 @@ if __name__ == '__main__':
         print(diff_angle)
         cur_angle = steering_angle
         cv2.waitKey(33)
-        # if diff_angle == 0: 
+        if diff_angle == 0: 
             
-        #     continue
-        # elif diff_angle > 0: #angle이 오른쪽으로 꺽여야함
-        #     for i in range(diff_angle) :
-        #         ser.write(b'd')
+            continue
+        elif diff_angle > 0: #angle이 오른쪽으로 꺽여야함
+            for i in range(diff_angle) :
+                ser.write(b'd')
 
-        # else : # angle이 왼쪽으로 꺽여야 함
-        #     for i in range(-diff_angle) :
-        #         ser.write(b'a')
+        else : # angle이 왼쪽으로 꺽여야 함
+            for i in range(-diff_angle) :
+                ser.write(b'a')
                 
 

@@ -1,3 +1,4 @@
+---- 실행은 /ORB_SLAM3  기준 ----
 
 [SLAM 실행 - Webcam]
 ./Examples/Monocular/mono_tum_vi ./Vocabulary/ORBvoc.txt ./fisheye.yaml 
@@ -10,25 +11,21 @@
 
 
 
-[CLIENT_Sender 컴파일]
-g++ -o client client_snd.cpp $(pkg-config opencv4 --libs --cflags)
 
-
-[CLIENT_Sender 실행]
-./client <SERVER IP> <SERVER PORT>
-
-
-
-
-
-[STM32F411RE 연결]
-sudo chmod 777 /dev/ttyACM0
+---- 실행은 /ORB_SLAM3/TCP 기준 ----
+[autodrive]
+python3 client.py --model ./model/model-100_1.h5
+python3 client.py --model ./model/model-100_2.h5
 
 
 [keyboard driving]
 g++ -o driving driving.cpp $(pkg-config --libs --cflags opencv4)
 ./driving save 0
 
-[autodrive]
-python3 autodrive.py --model model-100_1.h5
-python3 autodrive.py --model model-100_2.h5
+
+# 지울 예정
+[STM32F411RE 연결]
+sudo chmod 777 /dev/ttyACM0
+
+
+

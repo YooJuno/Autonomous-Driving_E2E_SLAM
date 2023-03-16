@@ -33,12 +33,8 @@ import torch.nn.functional as F
 
 os.system("sudo chmod 777 /dev/ttyACM0")
 
-model = None
-prev_image_array = None
-
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
-
 
 
 ser = serial.Serial(

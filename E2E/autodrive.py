@@ -101,6 +101,7 @@ def writePort(ser, data):
     print("send : ", data)
     ser.write(data)
 
+
 ser = serial.Serial(
                     port='/dev/ttyACM0',
                     baudrate=9600,
@@ -160,8 +161,6 @@ if __name__ == '__main__':
 
     ser.write(b'w')
     ser.write(b'w')
-
-    count = 0
 
     while True:
 

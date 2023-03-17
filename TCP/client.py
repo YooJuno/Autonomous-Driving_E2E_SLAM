@@ -31,7 +31,6 @@ import client_func as juno
 import torch.nn as nn
 import torch.nn.functional as F
 
-# os.system("sudo chmod 777 /dev/ttyACM0")
 
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
@@ -47,6 +46,7 @@ lock = threading.Lock()
 
 # STM32F411RE 연결
 if flag_serial == 1:
+    os.system("sudo chmod 777 /dev/ttyACM0")
     ser = juno.serial_connect(mac_os)
 
 

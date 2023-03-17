@@ -222,7 +222,7 @@ if __name__ == '__main__':
             import sys
             sys.exit()
     
-    else: # MAC OS
+    elif OS_TYPE == 'MAC':
         checkpoint = torch.load(
             args.model, map_location=lambda storage, loc: storage)
         model.load_state_dict(checkpoint['state_dict'])

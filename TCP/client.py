@@ -38,8 +38,10 @@ transformations = T.Compose(
 # Serial O => 1
 # Serial X => 0
 flag_serial = 0
-camera_num = 0
-mac_os = 0
+flag_camera_num = 0
+flag_mac_os = 0
+
+# for multi thread
 shared_var = 0
 lock = threading.Lock()
 
@@ -47,7 +49,7 @@ lock = threading.Lock()
 # STM32F411RE 연결
 if flag_serial == 1:
     os.system("sudo chmod 777 /dev/ttyACM0")
-    ser = juno.serial_connect(mac_os)
+    ser = juno.serial_connect(flag_mac_os)
 
 
 
@@ -63,7 +65,7 @@ class ImageThread(threading.Thread):
         global shared_var # 쓰레드 공유변수
 
         # 웹캠 설정
-        cap = cv2.VideoCapture(camera_num)
+        cap = cv2.VideoCapture(flag_camera_num)
 
 
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
@@ -208,7 +210,7 @@ if __name__ == '__main__':
 
     model = juno.NetworkNvidia()
 
-    if mac_os == 0:
+    if flag_mac_os == 0:
         try:
             checkpoint = torch.load(
                 args.model, map_location=lambda storage, loc: storage)

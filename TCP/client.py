@@ -39,6 +39,7 @@ transformations = T.Compose(
 # Serial O => 1
 # Serial X => 0
 flag_serial = 1
+camera_num = 2
 
 if flag_serial == 1:
     ser = serial.Serial(
@@ -69,9 +70,7 @@ class ImageThread(threading.Thread):
         global shared_var # 쓰레드 공유변수
 
         # 웹캠 설정
-        # cap = cv2.VideoCapture(-1)
-
-        cap = cv2.VideoCapture("/home/yoojunho/바탕화면/map1.mp4")
+        cap = cv2.VideoCapture(camera_num)
 
 
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)

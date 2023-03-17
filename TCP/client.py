@@ -39,7 +39,7 @@ flag_mac_os = False # UBUNTU 에서 실행
 
 
 
-if flag_mac_os == 0: # MAC OS
+if flag_mac_os == False: # UBUNTU OS
     flag_camera_num = -1
 else : # UBUNTU
     flag_camera_num = 0

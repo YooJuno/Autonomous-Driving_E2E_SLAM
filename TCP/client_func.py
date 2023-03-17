@@ -1,5 +1,5 @@
 import argparse
-import os , sys
+import os
 import serial
 
 import torch.nn as nn

@@ -31,8 +31,8 @@ transformations = T.Compose(
 flag_serial = False # Not connected to STM32
 # flag_serial = True # connected to STM32
 
-flag_mac_os = False # UBUNTU 에서 실행
-# flag_mac_os = True # Mac OS에서 실행
+os_type = 'MAC' # UBUNTU 에서 실행
+# os_type = 'UBUNTU' # Mac OS에서 실행
 
 
 # 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요
@@ -40,9 +40,9 @@ flag_mac_os = False # UBUNTU 에서 실행
 
 
 
-if flag_mac_os == False: # UBUNTU OS
+if os_type == 'UBUNUTU': # UBUNTU OS
     flag_camera_num = -1
-else : # UBUNTU
+elif os_type == 'MAC': # UBUNTU
     flag_camera_num = 0
 
 # for multi thread
@@ -52,7 +52,7 @@ lock = threading.Lock()
 
 # STM32F411RE 연결
 if flag_serial == 1: # Connected to STM32
-    ser = juno.serial_connect(flag_mac_os)
+    ser = juno.serial_connect(os_type)
 
 
 
@@ -102,7 +102,7 @@ class ImageThread(threading.Thread):
             image_array = np.array(image.copy())
             image_array = image_array[65:-25, :, :]
             
-            if flag_mac_os == False: # 현재 맥북에서 에러때문에 imshow 실행 안됨
+            if os_type == 'MAC': # 현재 맥북에서 에러때문에 imshow 실행 안됨
                 cv2.imshow("autodrive", image_array)
                 cv2.imshow("autodrive_crop", image_array)
 
@@ -203,7 +203,7 @@ if __name__ == '__main__':
 
     model = juno.NetworkNvidia()
 
-    if flag_mac_os == 0: # UBUNTU
+    if os_type == 'UBUNTU': # UBUNTU
         try:
             checkpoint = torch.load(
                 args.model, map_location=lambda storage, loc: storage)

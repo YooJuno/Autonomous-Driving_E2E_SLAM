@@ -58,12 +58,14 @@ class NetworkNvidia(nn.Module):
 
 
 
-def serial_connect(mac_os):
+def serial_connect(os_type):
 
-    if mac_os == 0: # UBUNTU
+    if os_type == 'UBUNTU': # UBUNTU
         port_addr = "/dev/ttyACM0"
         os.system("sudo chmod 777 /dev/ttyACM0")
-    else: # MAC OS
+
+        
+    elif os_type == 'MAC': # MAC OS
         port_addr = "/dev/tty.usbmodem1103"
 
     ser = serial.Serial(

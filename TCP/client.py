@@ -125,7 +125,7 @@ class ImageThread(threading.Thread):
             print(diff_angle)
             cur_angle = steering_angle
             cv2.waitKey(33)
-            if FLAG_SERIAL == True and Shared_VAR == 0:
+            if FLAG_SERIAL == True and Shared_VAR == 'GOOD':
                     if diff_angle == 0: 
                         continue
                     
@@ -165,7 +165,7 @@ class StringThread(threading.Thread):
             print()
 
             lock.acquire()
-            Shared_VAR = 0 # 범위 안에 있음
+            Shared_VAR = 'GOOD' # 범위 안에 있음
             lock.release()
             
             if ( 0 < juno_x and juno_x < 2.2) and ( (juno_z > 0.813*juno_x + -0.163-1) and (juno_z <0.813*juno_x + 0.36) ):
@@ -186,12 +186,16 @@ class StringThread(threading.Thread):
             else:
                 print("Out of boundary")
                 lock.acquire()
-                Shared_VAR = 1
+                Shared_VAR = 'BAD'
                 lock.release()
 
+
             # 나갔으면
-            if FLAG_SERIAL== 1 and Shared_VAR == 1:
+            if FLAG_SERIAL== True and Shared_VAR == 'BAD':
+                flag = 1
                 ser.write(b's')
+            
+
 
         # 연결 종료
         self.conn.close()

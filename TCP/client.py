@@ -35,8 +35,7 @@ import torch.nn.functional as F
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
-# Serial O => 1
-# Serial X => 0
+
 flag_serial = 0
 flag_camera_num = 0
 flag_mac_os = 0

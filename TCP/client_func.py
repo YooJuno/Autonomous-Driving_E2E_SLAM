@@ -88,7 +88,7 @@ def serial_connect(os_type):
 def parsing():
 
     parser = argparse.ArgumentParser(description='Auto Driving')
-    parser.add_argument('--model',type=str,default='../model/model-a-100_1.h5',help='')
+    parser.add_argument('--model',type=str,default='./model/model-a-100_1.h5',help='')
     parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
     parser.add_argument('--PORT',type=str,default='1115',help='')
 

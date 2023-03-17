@@ -46,7 +46,7 @@ elif OS_TYPE == 'MAC':
     camera_num = 0
 
 # for multi thread
-Shared_VAR = 0
+Boundary = ''
 lock = threading.Lock()
 
 
@@ -64,7 +64,7 @@ class ImageThread(threading.Thread):
         self.model = model
 
     def run(self):
-        global Shared_VAR # 쓰레드 공유변수
+        global Boundary # 쓰레드 공유변수
 
         cap = cv2.VideoCapture(camera_num)
 
@@ -125,7 +125,7 @@ class ImageThread(threading.Thread):
             print(diff_angle)
             cur_angle = steering_angle
             cv2.waitKey(33)
-            if FLAG_SERIAL == 'CONNECTED' and Shared_VAR == 'IN BOUNDARY':
+            if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
                     if diff_angle == 0: 
                         continue
                     
@@ -148,7 +148,7 @@ class StringThread(threading.Thread):
 
     def run(self):
         
-        global Shared_VAR # 쓰레드 공유변수
+        global Boundary # 쓰레드 공유변수
         # main.
         while True:
             data = self.conn.recv(1024).decode()
@@ -165,7 +165,7 @@ class StringThread(threading.Thread):
             print()
 
             lock.acquire()
-            Shared_VAR = 'IN BOUNDARY' # 범위 안에 있음
+            Boundary = 'IN BOUNDARY' # 범위 안에 있음
             lock.release()
             
             if ( 0 < juno_x and juno_x < 2.2) and ( (juno_z > 0.813*juno_x + -0.163-1) and (juno_z <0.813*juno_x + 0.36) ):
@@ -186,12 +186,12 @@ class StringThread(threading.Thread):
             else:
                 print("Out of boundary")
                 lock.acquire()
-                Shared_VAR = 'OUT OF BOUNDARY'
+                Boundary = 'OUT OF BOUNDARY'
                 lock.release()
 
 
             # 나갔으면
-            if FLAG_SERIAL== 'CONNECTED' and Shared_VAR == 'OUT OF BOUNDARY':
+            if FLAG_SERIAL== 'CONNECTED' and Boundary == 'OUT OF BOUNDARY':
                 ser.write(b's')
             
 

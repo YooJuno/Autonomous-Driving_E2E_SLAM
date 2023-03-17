@@ -102,7 +102,7 @@ class ImageThread(threading.Thread):
             image_array = np.array(image.copy())
             image_array = image_array[65:-25, :, :]
             
-            if OS_TYPE == 'MAC': # 현재 맥북에서 에러때문에 imshow 실행 안됨
+            if OS_TYPE == 'UBUNTU': # 현재 맥북에서 에러때문에 imshow 실행 안됨
                 cv2.imshow("autodrive_crop", image_array)
 
             # transform RGB to BGR for cv2

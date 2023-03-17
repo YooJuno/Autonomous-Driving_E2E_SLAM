@@ -64,12 +64,11 @@ def serial_connect(os_type):
         port_addr = "/dev/ttyACM0"
         os.system("sudo chmod 777 /dev/ttyACM0")
 
-        
+
     elif os_type == 'MAC': # MAC OS
         port_addr = "/dev/tty.usbmodem1103"
 
     ser = serial.Serial(
-                        # port='/dev/ttyACM0',
                         port=port_addr,
                         baudrate=9600,
                         parity=serial.PARITY_NONE,

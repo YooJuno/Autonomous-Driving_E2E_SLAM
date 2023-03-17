@@ -4,12 +4,8 @@
 #################### CLIENT ####################
 
 
-import argparse
 import os , sys
-import serial
-import time
 import threading
-import queue
 import cv2
 from PIL import Image
 import numpy as np
@@ -18,18 +14,11 @@ import torch
 from torch.autograd import Variable
 import torchvision.transforms as T
 
-import imageio as iio
-import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 
-# juno
 import socket
 import client_func as juno
-
-
-import torch.nn as nn
-import torch.nn.functional as F
 
 
 transformations = T.Compose(

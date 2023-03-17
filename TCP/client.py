@@ -25,10 +25,18 @@ transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
 
+# 여기만 건드세요
+# 여기만 건드세요
+# 여기만 건드세요
+# 여기만 건드세요
+
 flag_serial = False
 flag_mac_os = False
 
-
+# 여기만 건드세요
+# 여기만 건드세요
+# 여기만 건드세요
+# 여기만 건드세요
 
 if flag_mac_os == 0: # MAC OS
     flag_camera_num = -1

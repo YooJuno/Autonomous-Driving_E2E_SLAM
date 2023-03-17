@@ -41,9 +41,9 @@ OS_TYPE = 'UBUNTU'
 
 
 if OS_TYPE == 'UBUNUTU':
-    flag_camera_num = -1
+    camera_num = -1
 elif OS_TYPE == 'MAC':
-    flag_camera_num = 0
+    camera_num = 0
 
 # for multi thread
 Shared_VAR = 0
@@ -66,7 +66,7 @@ class ImageThread(threading.Thread):
     def run(self):
         global Shared_VAR # 쓰레드 공유변수
 
-        cap = cv2.VideoCapture(flag_camera_num)
+        cap = cv2.VideoCapture(camera_num)
 
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)

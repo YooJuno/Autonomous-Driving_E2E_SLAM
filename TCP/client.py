@@ -36,23 +36,26 @@ os.system("sudo chmod 777 /dev/ttyACM0")
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
+# Serial O => 1
+# Serial X => 0
+flag_serial = 1
 
-ser = serial.Serial(
-                    port='/dev/ttyACM0',
-                    baudrate=9600,
-                    parity=serial.PARITY_NONE,
-                    stopbits=serial.STOPBITS_ONE,
-                    bytesize=serial.EIGHTBITS,
-                    timeout=0
-                )
+if flag_serial == 1:
+    ser = serial.Serial(
+                        port='/dev/ttyACM0',
+                        baudrate=9600,
+                        parity=serial.PARITY_NONE,
+                        stopbits=serial.STOPBITS_ONE,
+                        bytesize=serial.EIGHTBITS,
+                        timeout=0
+                    )
 
-if ser.isOpen() == False :
-    ser.open()
+    if ser.isOpen() == False :
+        ser.open()
 
 
 shared_var = 0
 lock = threading.Lock()
-
 
 
 # 이미지를 보내는 쓰레드
@@ -66,13 +69,18 @@ class ImageThread(threading.Thread):
         global shared_var # 쓰레드 공유변수
 
         # 웹캠 설정
-        cap = cv2.VideoCapture(-1)
+        # cap = cv2.VideoCapture(-1)
+
+        cap = cv2.VideoCapture("/home/yoojunho/바탕화면/map1.mp4")
+
+
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
         cur_angle = 0
 
-        ser.write(b'w')
-        ser.write(b'w')
+        if flag_serial == 1:
+            ser.write(b'w')
+            ser.write(b'w')
 
         while True:
             # 이미지 읽기
@@ -122,17 +130,17 @@ class ImageThread(threading.Thread):
             print(diff_angle)
             cur_angle = steering_angle
             cv2.waitKey(33)
-            if shared_var == 0 : # 정상 주행 하고 있으면
-                if diff_angle == 0: 
-                    continue
-                
-                elif diff_angle > 0: #angle이 오른쪽으로 꺽여야함
-                    for i in range(diff_angle) :
-                        ser.write(b'd')
+            if flag_serial == 1 and shared_var == 0:
+                    if diff_angle == 0: 
+                        continue
+                    
+                    elif diff_angle > 0: #angle이 오른쪽으로 꺽여야함
+                        for i in range(diff_angle) :
+                            ser.write(b'd')
 
-                else : # angle이 왼쪽으로 꺽여야 함
-                    for i in range(-diff_angle) :
-                        ser.write(b'a')
+                    else : # angle이 왼쪽으로 꺽여야 함
+                        for i in range(-diff_angle) :
+                            ser.write(b'a')
 
         # 연결 종료
         self.conn.close()
@@ -189,7 +197,7 @@ class StringThread(threading.Thread):
                 lock.release()
 
             # 나갔으면
-            if shared_var == 1:
+            if flag_serial== 1 and shared_var == 1:
                 ser.write(b's')
 
         # 연결 종료

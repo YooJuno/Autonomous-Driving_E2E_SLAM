@@ -149,8 +149,6 @@ class StringThread(threading.Thread):
         while True:
             data = self.conn.recv(1024).decode()
             self.conn.recv(1024).decode()
-
-
             
             if not data:
                 break
@@ -196,12 +194,6 @@ class StringThread(threading.Thread):
 
 
 if __name__ == '__main__':
-
-    # parser = argparse.ArgumentParser(description='Auto Driving')
-    # parser.add_argument('--model',type=str,default='../model/model-a-100_1.h5',help='')
-    # parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
-    # parser.add_argument('--PORT',type=str,default='6395',help='')
-    # args = parser.parse_args()
 
     args = juno.parsing()
 

@@ -184,10 +184,10 @@ class StringThread(threading.Thread):
                 print("in front of ATM")
             
             else:
-                print("Out of boundary")
                 lock.acquire()
                 Boundary = 'OUT OF BOUNDARY'
                 lock.release()
+                print(Boundary)
 
 
             # 나갔으면

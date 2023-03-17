@@ -31,8 +31,8 @@ transformations = T.Compose(
 flag_serial = False # Not connected to STM32
 # flag_serial = True # connected to STM32
 
-os_type = 'MAC' # UBUNTU 에서 실행
-# os_type = 'UBUNTU' # Mac OS에서 실행
+# os_type = 'MAC' # Mac OS에서 실행
+os_type = 'UBUNTU' # UBUNTU 에서 실행
 
 
 # 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요

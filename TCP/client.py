@@ -51,8 +51,6 @@ if flag_serial == 1:
     ser = juno.serial_connect(flag_mac_os)
 
 
-
-
 # 이미지를 보내는 쓰레드
 class ImageThread(threading.Thread):
     def __init__(self, conn, model):
@@ -63,9 +61,7 @@ class ImageThread(threading.Thread):
     def run(self):
         global shared_var # 쓰레드 공유변수
 
-        # 웹캠 설정
         cap = cv2.VideoCapture(flag_camera_num)
-
 
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
@@ -100,9 +96,11 @@ class ImageThread(threading.Thread):
             image = image.resize((320,160))
 
             image_array = np.array(image.copy())
-            # cv2.imshow("autodrive", image_array)
             image_array = image_array[65:-25, :, :]
-            # cv2.imshow("autodrive_crop", image_array)
+            
+            if flag_mac_os == 0:
+                cv2.imshow("autodrive", image_array)
+                cv2.imshow("autodrive_crop", image_array)
 
             # transform RGB to BGR for cv2
             image_array = image_array[:, :, ::-1]

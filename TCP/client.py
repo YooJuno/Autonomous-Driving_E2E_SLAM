@@ -28,8 +28,8 @@ transformations = T.Compose(
 # 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요
 
 
-FLAG_SERIAL = False # Not connected to STM32
-# FLAG_SERIAL = True # connected to STM32
+FLAG_SERIAL = 'DISCONNECTED' # Not connected to STM32
+# FLAG_SERIAL = 'CONNECTED' # connected to STM32
 
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
@@ -51,7 +51,7 @@ lock = threading.Lock()
 
 
 # STM32F411RE 연결
-if FLAG_SERIAL == 1: # Connected to STM32
+if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
     ser = juno.serial_connect(OS_TYPE)
 
 
@@ -72,7 +72,7 @@ class ImageThread(threading.Thread):
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
         cur_angle = 0
 
-        if FLAG_SERIAL == True:
+        if FLAG_SERIAL == 'CONNECTED':
             ser.write(b'w')
             ser.write(b'w')
 
@@ -125,7 +125,7 @@ class ImageThread(threading.Thread):
             print(diff_angle)
             cur_angle = steering_angle
             cv2.waitKey(33)
-            if FLAG_SERIAL == True and Shared_VAR == 'GOOD':
+            if FLAG_SERIAL == 'CONNECTED' and Shared_VAR == 'GOOD':
                     if diff_angle == 0: 
                         continue
                     
@@ -191,8 +191,7 @@ class StringThread(threading.Thread):
 
 
             # 나갔으면
-            if FLAG_SERIAL== True and Shared_VAR == 'BAD':
-                flag = 1
+            if FLAG_SERIAL== 'CONNECTED' and Shared_VAR == 'BAD':
                 ser.write(b's')
             
 

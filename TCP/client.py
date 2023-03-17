@@ -25,7 +25,7 @@ transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
 # 여기만 건드세요
-# 여기만 건드세요
+# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요
 
 
 flag_serial = False # Not connected to STM32
@@ -34,7 +34,8 @@ flag_serial = False # Not connected to STM32
 flag_mac_os = False # UBUNTU 에서 실행
 # flag_mac_os = True # Mac OS에서 실행
 
-# 여기만 건드세요
+
+# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요
 # 여기만 건드세요
 
 
@@ -102,7 +103,7 @@ class ImageThread(threading.Thread):
             image_array = np.array(image.copy())
             image_array = image_array[65:-25, :, :]
             
-            if flag_mac_os == 0:
+            if flag_mac_os == False:
                 cv2.imshow("autodrive", image_array)
                 cv2.imshow("autodrive_crop", image_array)
 

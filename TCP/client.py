@@ -77,7 +77,6 @@ class ImageThread(threading.Thread):
             ser.write(b'w')
 
         while True:
-            # 이미지 읽기
             ret, frame = cap.read()
 
             if not ret:

@@ -28,8 +28,8 @@ transformations = T.Compose(
 # 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요
 
 
-FLAG_SERIAL = 'DISCONNECTED' # Not connected to STM32
-# FLAG_SERIAL = 'CONNECTED' # connected to STM32
+FLAG_SERIAL = 'DISCONNECTED'
+# FLAG_SERIAL = 'CONNECTED'
 
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'

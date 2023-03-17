@@ -52,7 +52,6 @@ class NetworkNvidia(nn.Module):
         """Forward pass."""
         input = input.view(input.size(0), 3, 70, 320)
         output = self.conv_layers(input)
-        # print(output.shape)
         output = output.view(output.size(0), -1)
         output = self.linear_layers(output)
         return output
@@ -61,12 +60,12 @@ class NetworkNvidia(nn.Module):
 
 def serial_connect(mac_os):
 
-    if mac_os == 0:
+    if mac_os == 0: # UBUNTU
         port_addr = "/dev/ttyACM0"
-    else:
+        os.system("sudo chmod 777 /dev/ttyACM0")
+    else: # MAC OS
         port_addr = "/dev/tty.usbmodem1103"
 
-    print('serial')
     ser = serial.Serial(
                         # port='/dev/ttyACM0',
                         port=port_addr,

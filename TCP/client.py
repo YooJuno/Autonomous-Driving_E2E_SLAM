@@ -30,9 +30,9 @@ flag_mac_os = False
 
 
 
-if flag_mac_os == 0:
+if flag_mac_os == 0: # MAC OS
     flag_camera_num = -1
-else :
+else : # UBUNTU
     flag_camera_num = 0
 
 # for multi thread
@@ -41,9 +41,9 @@ lock = threading.Lock()
 
 
 # STM32F411RE 연결
-if flag_serial == 1:
-    os.system("sudo chmod 777 /dev/ttyACM0")
+if flag_serial == 1: # Connected to STM32
     ser = juno.serial_connect(flag_mac_os)
+
 
 
 # 이미지를 보내는 쓰레드
@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
     model = juno.NetworkNvidia()
 
-    if flag_mac_os == 0:
+    if flag_mac_os == 0: # UBUNTU
         try:
             checkpoint = torch.load(
                 args.model, map_location=lambda storage, loc: storage)
@@ -210,7 +210,7 @@ if __name__ == '__main__':
             import sys
             sys.exit()
     
-    else:
+    else: # MAC OS
         checkpoint = torch.load(
             args.model, map_location=lambda storage, loc: storage)
         model.load_state_dict(checkpoint['state_dict'])

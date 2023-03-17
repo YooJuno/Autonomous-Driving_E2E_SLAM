@@ -103,7 +103,7 @@ class ImageThread(threading.Thread):
             image_array = np.array(image.copy())
             image_array = image_array[65:-25, :, :]
             
-            if flag_mac_os == False:
+            if flag_mac_os == False: # 현재 맥북에서 에러때문에 imshow 실행 안됨
                 cv2.imshow("autodrive", image_array)
                 cv2.imshow("autodrive_crop", image_array)
 

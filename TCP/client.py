@@ -72,7 +72,7 @@ class ImageThread(threading.Thread):
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
         cur_angle = 0
 
-        if FLAG_SERIAL == 1:
+        if FLAG_SERIAL == True:
             ser.write(b'w')
             ser.write(b'w')
 
@@ -125,7 +125,7 @@ class ImageThread(threading.Thread):
             print(diff_angle)
             cur_angle = steering_angle
             cv2.waitKey(33)
-            if FLAG_SERIAL == 1 and Shared_VAR == 0:
+            if FLAG_SERIAL == True and Shared_VAR == 0:
                     if diff_angle == 0: 
                         continue
                     

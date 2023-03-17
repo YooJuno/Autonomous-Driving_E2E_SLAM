@@ -56,7 +56,8 @@ class NetworkNvidia(nn.Module):
         output = output.view(output.size(0), -1)
         output = self.linear_layers(output)
         return output
-    
+
+
 
 def serial_connect(mac_os):
 
@@ -80,6 +81,9 @@ def serial_connect(mac_os):
         ser.open()
 
     return ser
+
+
+
 
 def parsing():
 

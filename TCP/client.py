@@ -25,9 +25,15 @@ transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
 
-flag_serial = 0
-flag_camera_num = 0
-flag_mac_os = 0
+flag_serial = False
+flag_mac_os = False
+
+
+
+if flag_mac_os == 0:
+    flag_camera_num = -1
+else :
+    flag_camera_num = 0
 
 # for multi thread
 shared_var = 0

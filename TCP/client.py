@@ -28,11 +28,11 @@ transformations = T.Compose(
 # 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요
 
 
-flag_serial = False # Not connected to STM32
-# flag_serial = True # connected to STM32
+FLAG_SERIAL = False # Not connected to STM32
+# FLAG_SERIAL = True # connected to STM32
 
-# os_type = 'MAC' # Mac OS에서 실행
-os_type = 'UBUNTU' # UBUNTU 에서 실행
+# OS_TYPE = 'MAC' 
+OS_TYPE = 'UBUNTU'
 
 
 # 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요# 여기만 건드세요
@@ -40,19 +40,19 @@ os_type = 'UBUNTU' # UBUNTU 에서 실행
 
 
 
-if os_type == 'UBUNUTU': # UBUNTU OS
+if OS_TYPE == 'UBUNUTU':
     flag_camera_num = -1
-elif os_type == 'MAC': # UBUNTU
+elif OS_TYPE == 'MAC':
     flag_camera_num = 0
 
 # for multi thread
-shared_var = 0
+Shared_VAR = 0
 lock = threading.Lock()
 
 
 # STM32F411RE 연결
-if flag_serial == 1: # Connected to STM32
-    ser = juno.serial_connect(os_type)
+if FLAG_SERIAL == 1: # Connected to STM32
+    ser = juno.serial_connect(OS_TYPE)
 
 
 
@@ -64,7 +64,7 @@ class ImageThread(threading.Thread):
         self.model = model
 
     def run(self):
-        global shared_var # 쓰레드 공유변수
+        global Shared_VAR # 쓰레드 공유변수
 
         cap = cv2.VideoCapture(flag_camera_num)
 
@@ -72,7 +72,7 @@ class ImageThread(threading.Thread):
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
         cur_angle = 0
 
-        if flag_serial == 1:
+        if FLAG_SERIAL == 1:
             ser.write(b'w')
             ser.write(b'w')
 
@@ -102,7 +102,7 @@ class ImageThread(threading.Thread):
             image_array = np.array(image.copy())
             image_array = image_array[65:-25, :, :]
             
-            if os_type == 'MAC': # 현재 맥북에서 에러때문에 imshow 실행 안됨
+            if OS_TYPE == 'MAC': # 현재 맥북에서 에러때문에 imshow 실행 안됨
                 cv2.imshow("autodrive", image_array)
                 cv2.imshow("autodrive_crop", image_array)
 
@@ -125,7 +125,7 @@ class ImageThread(threading.Thread):
             print(diff_angle)
             cur_angle = steering_angle
             cv2.waitKey(33)
-            if flag_serial == 1 and shared_var == 0:
+            if FLAG_SERIAL == 1 and Shared_VAR == 0:
                     if diff_angle == 0: 
                         continue
                     
@@ -148,7 +148,7 @@ class StringThread(threading.Thread):
 
     def run(self):
         
-        global shared_var # 쓰레드 공유변수
+        global Shared_VAR # 쓰레드 공유변수
         # main.
         while True:
             data = self.conn.recv(1024).decode()
@@ -165,7 +165,7 @@ class StringThread(threading.Thread):
             print()
 
             lock.acquire()
-            shared_var = 0 # 범위 안에 있음
+            Shared_VAR = 0 # 범위 안에 있음
             lock.release()
             
             if ( 0 < juno_x and juno_x < 2.2) and ( (juno_z > 0.813*juno_x + -0.163-1) and (juno_z <0.813*juno_x + 0.36) ):
@@ -186,11 +186,11 @@ class StringThread(threading.Thread):
             else:
                 print("Out of boundary")
                 lock.acquire()
-                shared_var = 1
+                Shared_VAR = 1
                 lock.release()
 
             # 나갔으면
-            if flag_serial== 1 and shared_var == 1:
+            if FLAG_SERIAL== 1 and Shared_VAR == 1:
                 ser.write(b's')
 
         # 연결 종료
@@ -203,7 +203,7 @@ if __name__ == '__main__':
 
     model = juno.NetworkNvidia()
 
-    if os_type == 'UBUNTU': # UBUNTU
+    if OS_TYPE == 'UBUNTU': # UBUNTU
         try:
             checkpoint = torch.load(
                 args.model, map_location=lambda storage, loc: storage)

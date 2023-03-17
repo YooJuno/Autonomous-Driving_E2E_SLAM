@@ -12,8 +12,6 @@ import torch
 from torch.autograd import Variable
 import torchvision.transforms as T
 
-import imageio as iio
-import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 
@@ -76,3 +74,36 @@ class NetworkNvidia(nn.Module):
         output = output.view(output.size(0), -1)
         output = self.linear_layers(output)
         return output
+    
+
+def serial_connect(mac_os):
+
+    if mac_os == 0:
+        port_addr = "/dev/ttyACM0"
+    else:
+        port_addr = "/dev/tty.usbmodem1103"
+
+    print('serial')
+    ser = serial.Serial(
+                        # port='/dev/ttyACM0',
+                        port=port_addr,
+                        baudrate=9600,
+                        parity=serial.PARITY_NONE,
+                        stopbits=serial.STOPBITS_ONE,
+                        bytesize=serial.EIGHTBITS,
+                        timeout=0
+                    )
+
+    if ser.isOpen() == False :
+        ser.open()
+
+    return ser
+
+def parsing():
+
+    parser = argparse.ArgumentParser(description='Auto Driving')
+    parser.add_argument('--model',type=str,default='../model/model-a-100_1.h5',help='')
+    parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
+    parser.add_argument('--PORT',type=str,default='6395',help='')
+
+    return parser.parse_args()

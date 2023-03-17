@@ -31,32 +31,25 @@ import client_func as juno
 import torch.nn as nn
 import torch.nn.functional as F
 
-os.system("sudo chmod 777 /dev/ttyACM0")
+# os.system("sudo chmod 777 /dev/ttyACM0")
 
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
 # Serial O => 1
 # Serial X => 0
-flag_serial = 1
-camera_num = 2
-
-if flag_serial == 1:
-    ser = serial.Serial(
-                        port='/dev/ttyACM0',
-                        baudrate=9600,
-                        parity=serial.PARITY_NONE,
-                        stopbits=serial.STOPBITS_ONE,
-                        bytesize=serial.EIGHTBITS,
-                        timeout=0
-                    )
-
-    if ser.isOpen() == False :
-        ser.open()
-
-
+flag_serial = 0
+camera_num = 0
+mac_os = 0
 shared_var = 0
 lock = threading.Lock()
+
+
+# STM32F411RE 연결
+if flag_serial == 1:
+    ser = juno.serial_connect(mac_os)
+
+
 
 
 # 이미지를 보내는 쓰레드
@@ -106,9 +99,9 @@ class ImageThread(threading.Thread):
             image = image.resize((320,160))
 
             image_array = np.array(image.copy())
-            cv2.imshow("autodrive", image_array)
+            # cv2.imshow("autodrive", image_array)
             image_array = image_array[65:-25, :, :]
-            cv2.imshow("autodrive_crop", image_array)
+            # cv2.imshow("autodrive_crop", image_array)
 
             # transform RGB to BGR for cv2
             image_array = image_array[:, :, ::-1]
@@ -205,28 +198,36 @@ class StringThread(threading.Thread):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Auto Driving')
-    parser.add_argument('--model',type=str,default='../model/model-a-100_1.h5',help='')
-    parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
-    parser.add_argument('--PORT',type=str,default='6395',help='')
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser(description='Auto Driving')
+    # parser.add_argument('--model',type=str,default='../model/model-a-100_1.h5',help='')
+    # parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
+    # parser.add_argument('--PORT',type=str,default='6395',help='')
+    # args = parser.parse_args()
+
+    args = juno.parsing()
 
     model = juno.NetworkNvidia()
 
-    try:
+    if mac_os == 0:
+        try:
+            checkpoint = torch.load(
+                args.model, map_location=lambda storage, loc: storage)
+            model.load_state_dict(checkpoint['state_dict'])
+
+        except KeyError:
+            checkpoint = torch.load(
+                args.model, map_location=lambda storage, loc: storage)
+            model = checkpoint['model']
+
+        except RuntimeError:
+            print("==> Please check using the same model as the checkpoint")
+            import sys
+            sys.exit()
+    
+    else:
         checkpoint = torch.load(
             args.model, map_location=lambda storage, loc: storage)
         model.load_state_dict(checkpoint['state_dict'])
-
-    except KeyError:
-        checkpoint = torch.load(
-            args.model, map_location=lambda storage, loc: storage)
-        model = checkpoint['model']
-
-    except RuntimeError:
-        print("==> Please check using the same model as the checkpoint")
-        import sys
-        sys.exit()
 
 
     # 서버에 연결
@@ -240,5 +241,4 @@ if __name__ == '__main__':
     # 문자열 받는 쓰레드 시작
     string_thread = StringThread(s)
     string_thread.start()
-
 

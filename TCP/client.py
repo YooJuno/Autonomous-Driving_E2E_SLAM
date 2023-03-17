@@ -28,11 +28,11 @@ transformations = T.Compose(
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 
-# FLAG_SERIAL = 'DISCONNECTED'
-FLAG_SERIAL = 'CONNECTED'
+FLAG_SERIAL = 'DISCONNECTED'
+# FLAG_SERIAL = 'CONNECTED'
 
-OS_TYPE = 'MAC' 
-# OS_TYPE = 'UBUNTU'
+# OS_TYPE = 'MAC' 
+OS_TYPE = 'UBUNTU'
 
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
@@ -40,7 +40,7 @@ OS_TYPE = 'MAC'
 
 
 
-if OS_TYPE == 'UBUNUTU':
+if OS_TYPE == 'UBUNTU':
     camera_num = -1
 elif OS_TYPE == 'MAC':
     camera_num = 0

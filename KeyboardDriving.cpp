@@ -15,9 +15,6 @@
 #include <unistd.h>   /* For open(), creat() */
 #include "opencv4/opencv2/opencv.hpp"
 
-#include "opencv2/opencv.hpp"
-#include <opencv2/dnn.hpp>
-
 using namespace cv;
 using namespace std;
 using namespace dnn;
@@ -79,53 +76,12 @@ int main(int argc, char** argv){
     
     cv::Mat img;
     cv::Mat img_pre;
-     
-    // Mat slow_sign = imread("./sign/slow.png");
-    // Mat stop_sign = imread("./sign/stop.png");
-    // resize(slow_sign, slow_sign, Size(640, 480));
-    // resize(stop_sign, stop_sign, Size(640, 480));
 
     int check = 2; // 기본 속도
     int count = 0; // frame maintain
 
     while(1){
         cap >> img_pre;
-
-        // if((check==2) || (check==1&&count==5) || (check==0&&count==10)) { //yolo
-        //     check = yolo(img_pre);
-        //     count = 0;
-        // }
-
-        // if(check==2) { //speed should be 2
-        //     img = img_pre;
-        //     // if(speed==1) {
-        //     //     write(fd, go, 1);
-        //     //     speed++;
-        //     // }
-        //     // else if(speed==0) {
-        //     //     write(fd, go, 1);
-        //     //     write(fd, go, 1);
-        //     //     speed+=2;
-        //     // }
-        // }
-        // else if(check==1) { //speed should be 1
-        //     img = slow_sign;
-        //     count++;
-        //     if(speed==2) {
-        //         write(fd, back, 1); ///////////?????????????????????????????????????????????????????????? 속도 하나 낮추기
-        //         speed--;
-        //     }
-        //     // else if(speed==0) {
-        //     //     write(fd, go, 1);
-        //     //     speed++;
-        //     // }
-        // }
-        // else if(check==0) { //speed should be 0
-        //     img = stop_sign;
-        //     count++;
-        //     write(fd, stop, 1);
-        //     speed=0;
-        // }
 
         // cout << "\n[speed " << speed << "] [check " << check << "]" << endl;
         cv::imshow("camera img", img_pre); //show the frame
@@ -140,35 +96,43 @@ int main(int argc, char** argv){
             // speed++;
             // write(fd, go, 1);
             // speed++;
-        } else if(key == 'd'){
+        } 
+        else if(key == 'd'){
             angle += 0.25;
             if(angle >= 1)
                 angle = 1;
             write(fd, right, 1);
-        } else if(key == 'a'){
+        } 
+        else if(key == 'a'){
             angle -= 0.25;
                 if(angle <= -1)
                     angle = -1;
             write(fd, left, 1);
-        
-        } else if(key == 's'){
+        } 
+        else if(key == 's'){
             angle = 0;
             speed = 0;
             write(fd, stop, 1);
-        } else if(key == 'x'){
+        } 
+        else if(key == 'x'){
             write(fd, back, 1);
-        } else if(key == 'f'){
+        } 
+        else if(key == 'f'){
             angle = 0;
             write(fd, center, 1);
-        } else if(key == 27){
+        } 
+        else if(key == 27){
             write(fd, stop, 1);
             break;
-        } else if(key == 'p'){
+        }
+        else if(key == 'p'){
             recording = PAUSE;
-        } else if(key == 'r'){
+        } 
+        else if(key == 'r'){
             recording = RECORD;
-        }else{
-            key = 0;
+        }
+        else{
+           key = 0;
         }
         
         std::string file_name = output_frame_file_path + std::to_string(frame_no) + ".jpg";
@@ -225,45 +189,6 @@ void save_driving_log(std::string file_name, std::string driving_log){
     fout << driving_log << std::endl;
     fout.close();
 }
-
-// int yolo(cv::Mat img_name) {
-//     int check = 2; //기본 속도
-
-//     Net net = readNetFromDarknet("yolov4-tiny.cfg", "yolov4-tiny.weights");
-
-//     std::vector<std::string> classes;
-//     std::ifstream file("coco.names");
-//     std::string line;
-//     while (std::getline(file, line)) {
-//         classes.push_back(line);
-//     }
-
-//     DetectionModel model = DetectionModel(net);
-//     model.setInputParams(1 / 255.0, Size(416, 416), Scalar(), true);
-
-//     std::vector<int> classIds;
-//     std::vector<float> scores;
-//     std::vector<Rect> boxes;
-//     model.detect(img_name, classIds, scores, boxes, 0.6, 0.4);
-
-//     for (int i = 0; i < classIds.size(); i++) {
-//         //cout << classes[classIds[i]].c_str() << endl;
-//         if (strcmp(classes[classIds[i]].c_str(),"person")==0){
-//             if (boxes[i].size().width >= 70) { // 사람이 가까이 있을 때, check = 0
-//                 check = 0;
-//                 cout << "check=0, " << boxes[i].size().width << endl;
-//                 break;
-//             }
-//             else if (boxes[i].size().width >= 50) { // 사람이 적당한 거리에서 보일 때, check = 1
-//                 check = 1;
-//                 cout << "check=1, " << boxes[i].size().width << endl;
-//                 break;
-//             }
-//         }
-//     }
-
-//     return check;
-// }
 
 /*
 시작할 때 w 누르고 시작 (자동으로 속도 2 고정) - 바로 r 눌러서 기록 시작

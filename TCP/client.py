@@ -34,9 +34,19 @@ FLAG_SERIAL = 'DISCONNECTED'
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
 
+DRIVING_TYPE = 'MANUAL'
+# DRIVING_TYPE = 'AUTO'
+
+DRIVE_WITH_SLAM_TYPE = 'WITH'
+# DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
+
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
+
+
+
+
 
 
 
@@ -48,9 +58,10 @@ elif OS_TYPE == 'MAC':
 # for multi thread
 Boundary = ''
 lock = threading.Lock()
+sock = 0
 
 
-# STM32F411RE 연결
+# STM32F411RE 연결할지 말지
 if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
     ser = juno.serial_connect(OS_TYPE)
 
@@ -58,21 +69,31 @@ if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
 
 # 이미지를 보내는 쓰레드
 class ImageThread(threading.Thread):
-    def __init__(self, conn, model):
+    def __init__(self, model, args):
         threading.Thread.__init__(self)
-        self.conn = conn
+        global sock
+         # 서버에 연결  
+        if DRIVE_WITH_SLAM_TYPE == 'WITH':      
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((args.IP, int(args.PORT)))
+            self.conn = sock
+
         self.model = model
+        
 
     def run(self):
         global Boundary # 쓰레드 공유변수
 
-        cap = cv2.VideoCapture(camera_num)
-
+        cap = cv2.VideoCapture(camera_num)    
+        # cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
+        
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
         cur_angle = 0
 
-        if FLAG_SERIAL == 'CONNECTED':
+
+        # STM32 연결돼있고 AUTO모드이면 일단 출발
+        if FLAG_SERIAL == 'CONNECTED' and DRIVING_TYPE == 'AUTO':
             ser.write(b'w')
             ser.write(b'w')
 
@@ -82,17 +103,18 @@ class ImageThread(threading.Thread):
             if not ret:
                 print("Failed to capture frame.")
                 break
-
+            
             # 이미지 인코딩
             encoded_image = cv2.imencode(".jpg", frame)[1].tobytes()
 
-            size = len(encoded_image).to_bytes(4,byteorder='little')
 
-            # 이미지 크기 전송
-            self.conn.send(size)
+            # SLAM 이용하면 서버와 통신해야됨
+            if DRIVE_WITH_SLAM_TYPE == 'WITH':
+                size = len(encoded_image).to_bytes(4,byteorder='little')
+                self.conn.send(size)
+                self.conn.send(encoded_image)
 
-            # 이미지 데이터 전송
-            self.conn.send(encoded_image)
+
 
             frame_str = base64.b64encode(encoded_image)
             
@@ -101,30 +123,31 @@ class ImageThread(threading.Thread):
 
             image_array = np.array(image.copy())
             image_array = image_array[65:-25, :, :]
-            
-            if OS_TYPE == 'UBUNTU': # 현재 맥북에서 에러때문에 imshow 실행 안됨
-                cv2.imshow("autodrive_crop", image_array)
+            crop_img = image_array.copy()
+                
 
-            # transform RGB to BGR for cv2
-            image_array = image_array[:, :, ::-1]
-            image_array = transformations(image_array)
-            image_tensor = torch.Tensor(image_array)
-            image_tensor = image_tensor.view(1, 3, 70, 320)
-            image_tensor = Variable(image_tensor)
+            if DRIVING_TYPE == 'AUTO' : 
+                # transform RGB to BGR for cv2
+                image_array = image_array[:, :, ::-1]
+                image_array = transformations(image_array)
+                image_tensor = torch.Tensor(image_array)
+                image_tensor = image_tensor.view(1, 3, 70, 320)
+                image_tensor = Variable(image_tensor)
 
-            steering_angle = self.model(image_tensor).view(-1).data.numpy()[0] #angle
-            steering_angle = steering_angle * 20
-            diff_angle = steering_angle - cur_angle
-            # diff_angle = diff_angle / 10
-            diff_angle = int(diff_angle)
+                steering_angle = self.model(image_tensor).view(-1).data.numpy()[0] #angle
+                steering_angle = steering_angle * 20
+                diff_angle = steering_angle - cur_angle
+                # diff_angle = diff_angle / 10
+                diff_angle = int(diff_angle)
 
-            #steering_angle 값을 quantization을 해야함
-            # steering_angle = steering_angle-0.253
-            
-            print(diff_angle)
-            cur_angle = steering_angle
-            cv2.waitKey(33)
-            if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
+                #steering_angle 값을 quantization을 해야함
+                # steering_angle = steering_angle-0.253
+                
+                print(diff_angle)
+                cur_angle = steering_angle
+                cv2.waitKey(33)
+
+                if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
                     if diff_angle == 0: 
                         continue
                     
@@ -136,14 +159,42 @@ class ImageThread(threading.Thread):
                         for i in range(-diff_angle) :
                             ser.write(b'a')
 
-        # 연결 종료
-        self.conn.close()
+
+            elif DRIVING_TYPE == 'MANUAL' : 
+                key = cv2.waitKey(33)
+                if (97 <= key <= 122) or (65 <= key <= 90):
+                    key = chr(key).lower()
+                    print(key)
+
+                if FLAG_SERIAL == 'CONNECTED':
+                    if key == 'w':
+                        ser.write(b'w')
+
+                    elif key == 'a':
+                        ser.write(b'a')
+
+                    elif key == 's':
+                        ser.write(b's')
+
+                    elif key == 'd':
+                        ser.write(b'd')
+
+                    
+
+            if OS_TYPE == 'UBUNTU': # 현재 맥북에서 에러때문에 imshow 실행 안됨
+                cv2.imshow("autodrive_crop", crop_img)
+
+        if DRIVE_WITH_SLAM_TYPE == 'WITH':
+            # 연결 종료
+            self.conn.close()
 
 # 좌표를 받는 쓰레드
 class StringThread(threading.Thread):
-    def __init__(self, conn):
+    def __init__(self):
+        global sock
         threading.Thread.__init__(self)
-        self.conn = conn
+        self.conn = sock
+        
 
     def run(self):
         
@@ -227,15 +278,12 @@ if __name__ == '__main__':
         model.load_state_dict(checkpoint['state_dict'])
 
 
-    # 서버에 연결
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((args.IP, int(args.PORT)))
-
     # 이미지 보내는 쓰레드 시작
-    image_thread = ImageThread(s, model)
+    image_thread = ImageThread(model, args)
     image_thread.start()
 
-    # 문자열 받는 쓰레드 시작
-    string_thread = StringThread(s)
-    string_thread.start()
+    if DRIVE_WITH_SLAM_TYPE == 'WITH':
+        # 문자열 받는 쓰레드 시작
+        string_thread = StringThread()
+        string_thread.start()
 

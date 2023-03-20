@@ -66,7 +66,7 @@ def serial_connect(os_type):
 
 
     elif os_type == 'MAC': # MAC OS
-        port_addr = "/dev/tty.usbmodem1103"
+        port_addr = "/dev/tty.usbmodem21403"
 
     ser = serial.Serial(
                         port=port_addr,

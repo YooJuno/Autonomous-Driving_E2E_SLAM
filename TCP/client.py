@@ -85,6 +85,7 @@ class ImageThread(threading.Thread):
         
 
     def run(self):
+        key = -1
         global Boundary # 쓰레드 공유변수
 
         cap = cv2.VideoCapture(camera_num)    
@@ -164,7 +165,6 @@ class ImageThread(threading.Thread):
 
 
             elif DRIVING_TYPE == 'MANUAL' : 
-                key = cv2.waitKey(33)
                 if (97 <= key <= 122) or (65 <= key <= 90):
                     key = chr(key).lower()
                     print(key)
@@ -186,8 +186,15 @@ class ImageThread(threading.Thread):
                         ser.write(b'x')
                     
 
-            if OS_TYPE == 'UBUNTU': # 현재 맥북에서 에러때문에 imshow 실행 안됨
+            # if OS_TYPE == 'UBUNTU': # 현재 맥북에서 에러때문에 imshow 실행 안됨
+            try:
+                # OpenCV 코드 실행
                 cv2.imshow("autodrive_crop", crop_img)
+                key = cv2.waitKey(33)
+                
+            except cv2.error as e:
+                print("OpenCV error:", e)
+            ser.write(b'a')
 
         if DRIVE_WITH_SLAM_TYPE == 'WITH':
             # 연결 종료

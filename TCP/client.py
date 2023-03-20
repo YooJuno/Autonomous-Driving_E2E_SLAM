@@ -24,15 +24,18 @@ import client_func as juno
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
+
+
+
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 
-FLAG_SERIAL = 'DISCONNECTED'
-# FLAG_SERIAL = 'CONNECTED'
+# FLAG_SERIAL = 'DISCONNECTED'
+FLAG_SERIAL = 'CONNECTED'
 
-# OS_TYPE = 'MAC' 
-OS_TYPE = 'UBUNTU'
+OS_TYPE = 'MAC' 
+# OS_TYPE = 'UBUNTU'
 
 DRIVING_TYPE = 'MANUAL'
 # DRIVING_TYPE = 'AUTO'
@@ -179,6 +182,8 @@ class ImageThread(threading.Thread):
                     elif key == 'd':
                         ser.write(b'd')
 
+                    elif key == 'x':
+                        ser.write(b'x')
                     
 
             if OS_TYPE == 'UBUNTU': # 현재 맥북에서 에러때문에 imshow 실행 안됨

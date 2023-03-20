@@ -5,6 +5,48 @@ import serial
 import torch.nn as nn
 
 
+
+def serial_connect(os_type):
+
+    if os_type == 'UBUNTU': # UBUNTU
+        port_addr = "/dev/ttyACM0"
+        os.system("sudo chmod 777 /dev/ttyACM0")
+
+
+    elif os_type == 'MAC': # MAC OS
+        port_addr = "/dev/tty.usbmodem1103"
+
+    ser = serial.Serial(
+                        port=port_addr,
+                        baudrate=9600,
+                        parity=serial.PARITY_NONE,
+                        stopbits=serial.STOPBITS_ONE,
+                        bytesize=serial.EIGHTBITS,
+                        timeout=0
+                    )
+
+    if ser.isOpen() == False :
+        ser.open()
+
+    return ser
+
+
+
+
+def parsing():
+
+    parser = argparse.ArgumentParser(description='Auto Driving')
+    parser.add_argument('--model',type=str,default='./model/model-a-100_1.h5',help='')
+    parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
+    parser.add_argument('--PORT',type=str,default='1115',help='')
+
+    return parser.parse_args()
+
+
+
+
+
+
 class NetworkNvidia(nn.Module):
     """NVIDIA model used in the paper."""
 
@@ -55,41 +97,3 @@ class NetworkNvidia(nn.Module):
         output = output.view(output.size(0), -1)
         output = self.linear_layers(output)
         return output
-
-
-
-def serial_connect(os_type):
-
-    if os_type == 'UBUNTU': # UBUNTU
-        port_addr = "/dev/ttyACM0"
-        os.system("sudo chmod 777 /dev/ttyACM0")
-
-
-    elif os_type == 'MAC': # MAC OS
-        port_addr = "/dev/tty.usbmodem1103"
-
-    ser = serial.Serial(
-                        port=port_addr,
-                        baudrate=9600,
-                        parity=serial.PARITY_NONE,
-                        stopbits=serial.STOPBITS_ONE,
-                        bytesize=serial.EIGHTBITS,
-                        timeout=0
-                    )
-
-    if ser.isOpen() == False :
-        ser.open()
-
-    return ser
-
-
-
-
-def parsing():
-
-    parser = argparse.ArgumentParser(description='Auto Driving')
-    parser.add_argument('--model',type=str,default='./model/model-a-100_1.h5',help='')
-    parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
-    parser.add_argument('--PORT',type=str,default='1115',help='')
-
-    return parser.parse_args()

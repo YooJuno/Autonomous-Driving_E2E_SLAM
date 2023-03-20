@@ -31,14 +31,14 @@ transformations = T.Compose(
 FLAG_SERIAL = 'DISCONNECTED'
 # FLAG_SERIAL = 'CONNECTED'
 
-OS_TYPE = 'MAC' 
-# OS_TYPE = 'UBUNTU'
+# OS_TYPE = 'MAC' 
+OS_TYPE = 'UBUNTU'
 
 DRIVING_TYPE = 'MANUAL'
 # DRIVING_TYPE = 'AUTO'
 
-DRIVE_WITH_SLAM_TYPE = 'WITH'
-# DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
+# DRIVE_WITH_SLAM_TYPE = 'WITH'
+DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
 
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #

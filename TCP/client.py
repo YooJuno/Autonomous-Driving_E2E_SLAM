@@ -187,13 +187,14 @@ class ImageThread(threading.Thread):
                     
 
             # if OS_TYPE == 'UBUNTU': # 현재 맥북에서 에러때문에 imshow 실행 안됨
-            try:
-                # OpenCV 코드 실행
+            
+            # OpenCV 코드 실행
+            
+            if OS_TYPE == 'MAC':
                 cv2.imshow("autodrive_crop", crop_img)
-                key = cv2.waitKey(33)
                 
-            except cv2.error as e:
-                print("OpenCV error:", e)
+            key = cv2.waitKey(33)
+
             
 
         if DRIVE_WITH_SLAM_TYPE == 'WITH':

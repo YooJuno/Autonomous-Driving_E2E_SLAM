@@ -20,7 +20,6 @@ from io import BytesIO
 import socket
 import client_func as juno
 
-
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 

@@ -20,6 +20,7 @@ from io import BytesIO
 import socket
 import client_func as juno
 
+import pandas as pd
 import csv
 
 transformations = T.Compose(
@@ -39,10 +40,13 @@ FLAG_SERIAL = 'DISCONNECTED'
 OS_TYPE = 'UBUNTU'
 
 # DRIVING_TYPE = 'MANUAL'
-DRIVING_TYPE = 'AUTO'
+# DRIVING_TYPE = 'AUTO'
+driving_type = 'AUTO'
 
 # DRIVE_WITH_SLAM_TYPE = 'WITH'
 DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
+
+
 
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
@@ -83,6 +87,7 @@ class ImageThread(threading.Thread):
             self.conn = sock
 
         self.model = model
+        self.cnt = 0
         
 
     def run(self):
@@ -95,21 +100,27 @@ class ImageThread(threading.Thread):
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
         cur_angle = 0
+        csv_angle = 0
 
 
         # STM32 연결돼있고 AUTO모드이면 일단 출발
-        if FLAG_SERIAL == 'CONNECTED' and DRIVING_TYPE == 'AUTO':
+        if FLAG_SERIAL == 'CONNECTED' and driving_type == 'AUTO':
             ser.write(b'w')
             ser.write(b'w')
 
         while True:
             ret, frame = cap.read()
-            
             key = cv2.waitKey(33)
 
             if (97 <= key <= 122) or (65 <= key <= 90):
                 key = chr(key).lower()
                 print(key)
+            
+            # frame 경로
+            #self.path = './data/frame'
+            self.path = './data/frame' + str(self.cnt) + '.jpg'
+            cv2.imwrite(self.path, frame)
+            self.cnt += 1
 
             if not ret:
                 print("Failed to capture frame.")
@@ -118,14 +129,11 @@ class ImageThread(threading.Thread):
             # 이미지 인코딩
             encoded_image = cv2.imencode(".jpg", frame)[1].tobytes()
 
-
             # SLAM 이용하면 서버와 통신해야됨
             if DRIVE_WITH_SLAM_TYPE == 'WITH':
                 size = len(encoded_image).to_bytes(4,byteorder='little')
                 self.conn.send(size)
                 self.conn.send(encoded_image)
-
-
 
             frame_str = base64.b64encode(encoded_image)
             
@@ -137,7 +145,7 @@ class ImageThread(threading.Thread):
             crop_img = image_array.copy()
                 
 
-            if DRIVING_TYPE == 'AUTO' : 
+            if driving_type == 'AUTO' : 
                 # transform RGB to BGR for cv2
                 image_array = image_array[:, :, ::-1]
                 image_array = transformations(image_array)
@@ -165,13 +173,19 @@ class ImageThread(threading.Thread):
                     elif diff_angle > 0: #angle이 오른쪽으로 꺽여야함
                         for i in range(diff_angle) :
                             ser.write(b'd')
+                            csv_angle += 0.25
 
                     else : # angle이 왼쪽으로 꺽여야 함
                         for i in range(-diff_angle) :
                             ser.write(b'a')
+                            csv_angle -= 0.25
+                
+                # csv 파일 열기/쓰기
+                with open('driving_log.csv', 'a', newline='') as csv_file:
+                    wr = csv.writer(csv_file)
+                    wr.writerow([self.path, str(csv_angle)])
 
-
-            elif DRIVING_TYPE == 'MANUAL' : 
+            elif driving_type == 'MANUAL' :
 
                 if FLAG_SERIAL == 'CONNECTED':
                     if key == 'w':
@@ -193,6 +207,7 @@ class ImageThread(threading.Thread):
             if OS_TYPE == 'UBUNTU':
                 cv2.imshow("autodrive_crop", crop_img)
             
+        f_csv.close()
 
         if DRIVE_WITH_SLAM_TYPE == 'WITH':
             # 연결 종료

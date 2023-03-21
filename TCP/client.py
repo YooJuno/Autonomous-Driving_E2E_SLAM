@@ -103,6 +103,12 @@ class ImageThread(threading.Thread):
 
         while True:
             ret, frame = cap.read()
+            
+            key = cv2.waitKey(33)
+
+            if (97 <= key <= 122) or (65 <= key <= 90):
+                key = chr(key).lower()
+                print(key)
 
             if not ret:
                 print("Failed to capture frame.")
@@ -165,9 +171,6 @@ class ImageThread(threading.Thread):
 
 
             elif DRIVING_TYPE == 'MANUAL' : 
-                if (97 <= key <= 122) or (65 <= key <= 90):
-                    key = chr(key).lower()
-                    print(key)
 
                 if FLAG_SERIAL == 'CONNECTED':
                     if key == 'w':
@@ -185,15 +188,11 @@ class ImageThread(threading.Thread):
                     elif key == 'x':
                         ser.write(b'x')
                     
-
-            # if OS_TYPE == 'UBUNTU': # 현재 맥북에서 에러때문에 imshow 실행 안됨
-            
-            # OpenCV 코드 실행
             
             if OS_TYPE == 'MAC':
                 cv2.imshow("autodrive_crop", crop_img)
                 
-            key = cv2.waitKey(33)
+            
 
             
 

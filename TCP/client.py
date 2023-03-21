@@ -189,7 +189,7 @@ class ImageThread(threading.Thread):
                         ser.write(b'x')
                     
             
-            if OS_TYPE == 'MAC':
+            if OS_TYPE == 'UBUNTU':
                 cv2.imshow("autodrive_crop", crop_img)
             
 

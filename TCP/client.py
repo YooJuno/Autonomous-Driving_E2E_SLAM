@@ -93,6 +93,7 @@ class ImageThread(threading.Thread):
     def run(self):
         key = -1
         global Boundary # 쓰레드 공유변수
+        global driving_type
 
         cap = cv2.VideoCapture(camera_num)    
         # cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
@@ -117,7 +118,6 @@ class ImageThread(threading.Thread):
                 print(key)
             
             # frame 경로
-            #self.path = './data/frame'
             self.path = './data/frame' + str(self.cnt) + '.jpg'
             cv2.imwrite(self.path, frame)
             self.cnt += 1
@@ -146,6 +146,19 @@ class ImageThread(threading.Thread):
                 
 
             if driving_type == 'AUTO' : 
+                
+                # 'p' 눌렸을 때 멈추고 driving mode로 변환
+                if key == 'p':
+                    driving_type = 'MANUAL'
+                    
+                    # DRIVING 시작 지점 알려주기
+                    with open('driving_log.csv', 'a', newline='') as csv_file:
+                        wr = csv.writer(csv_file)
+                        wr.writerow(["[ DRIVING START FROM HERE ]"])
+
+                    #ser.write(b's')
+                    continue
+
                 # transform RGB to BGR for cv2
                 image_array = image_array[:, :, ::-1]
                 image_array = transformations(image_array)
@@ -165,19 +178,24 @@ class ImageThread(threading.Thread):
                 print(diff_angle)
                 cur_angle = steering_angle
                 cv2.waitKey(33)
-
-                if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
+                
+                #수정하기!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                # angle > 1 일 때도 고려
+                #if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
+                Boundary = "IN BOUNDARY"
+                print(Boundary)
+                if Boundary == 'IN BOUNDARY':
                     if diff_angle == 0: 
                         continue
                     
                     elif diff_angle > 0: #angle이 오른쪽으로 꺽여야함
                         for i in range(diff_angle) :
-                            ser.write(b'd')
+                            #ser.write(b'd')
                             csv_angle += 0.25
 
                     else : # angle이 왼쪽으로 꺽여야 함
                         for i in range(-diff_angle) :
-                            ser.write(b'a')
+                            #ser.write(b'a')
                             csv_angle -= 0.25
                 
                 # csv 파일 열기/쓰기
@@ -187,21 +205,46 @@ class ImageThread(threading.Thread):
 
             elif driving_type == 'MANUAL' :
 
-                if FLAG_SERIAL == 'CONNECTED':
+                if key == 'r':
+                    driving_type = 'AUTO'
+                    
+                    # DRIVING 시작 지점 알려주기
+                    with open('driving_log.csv', 'a', newline='') as csv_file:
+                        wr = csv.writer(csv_file)
+                        wr.writerow(["[ AUTO RESTART FROM HERE ]"])
+
+                    #ser.write(b'w')
+                    #ser.write(b'w')
+                    continue
+
+                # if FLAG_SERIAL == 'CONNECTED':
+                if FLAG_SERIAL == 'DISCONNECTED':
                     if key == 'w':
-                        ser.write(b'w')
+                        print("W")
+                        #ser.write(b'w')
 
                     elif key == 'a':
-                        ser.write(b'a')
+                        print("A")
+                        #ser.write(b'a')
+                        csv_angle -= 0.25
 
                     elif key == 's':
-                        ser.write(b's')
+                        print("S")
+                        #ser.write(b's')
 
                     elif key == 'd':
-                        ser.write(b'd')
+                        print("D")
+                        #ser.write(b'd')
+                        csv_angle += 0.25
 
                     elif key == 'x':
-                        ser.write(b'x')
+                        print("X")
+                        #ser.write(b'x')
+
+                # csv 파일 열기/쓰기
+                with open('driving_log.csv', 'a', newline='') as csv_file:
+                    wr = csv.writer(csv_file)
+                    wr.writerow([self.path, str(csv_angle)])
                     
             
             if OS_TYPE == 'UBUNTU':

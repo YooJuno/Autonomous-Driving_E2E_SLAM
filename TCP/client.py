@@ -31,11 +31,11 @@ transformations = T.Compose(
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 
-# FLAG_SERIAL = 'DISCONNECTED'
-FLAG_SERIAL = 'CONNECTED'
+FLAG_SERIAL = 'DISCONNECTED'
+# FLAG_SERIAL = 'CONNECTED'
 
-OS_TYPE = 'MAC' 
-# OS_TYPE = 'UBUNTU'
+# OS_TYPE = 'MAC' 
+OS_TYPE = 'UBUNTU'
 
 # DRIVING_TYPE = 'MANUAL'
 DRIVING_TYPE = 'AUTO'
@@ -191,9 +191,6 @@ class ImageThread(threading.Thread):
             
             if OS_TYPE == 'MAC':
                 cv2.imshow("autodrive_crop", crop_img)
-                
-            
-
             
 
         if DRIVE_WITH_SLAM_TYPE == 'WITH':
@@ -207,7 +204,6 @@ class StringThread(threading.Thread):
         threading.Thread.__init__(self)
         self.conn = sock
         
-
     def run(self):
         
         global Boundary # 쓰레드 공유변수

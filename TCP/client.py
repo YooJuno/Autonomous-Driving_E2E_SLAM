@@ -194,7 +194,7 @@ class ImageThread(threading.Thread):
                 
             except cv2.error as e:
                 print("OpenCV error:", e)
-            ser.write(b'a')
+            
 
         if DRIVE_WITH_SLAM_TYPE == 'WITH':
             # 연결 종료

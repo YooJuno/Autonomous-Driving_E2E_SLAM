@@ -20,6 +20,8 @@ from io import BytesIO
 import socket
 import client_func as juno
 
+import pandas as pd
+import csv
 
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
@@ -31,17 +33,20 @@ transformations = T.Compose(
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 
-# FLAG_SERIAL = 'DISCONNECTED'
-FLAG_SERIAL = 'CONNECTED'
+FLAG_SERIAL = 'DISCONNECTED'
+# FLAG_SERIAL = 'CONNECTED'
 
-OS_TYPE = 'MAC' 
-# OS_TYPE = 'UBUNTU'
+# OS_TYPE = 'MAC' 
+OS_TYPE = 'UBUNTU'
 
 # DRIVING_TYPE = 'MANUAL'
-DRIVING_TYPE = 'AUTO'
+# DRIVING_TYPE = 'AUTO'
+driving_type = 'AUTO'
 
 # DRIVE_WITH_SLAM_TYPE = 'WITH'
 DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
+
+
 
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
@@ -82,11 +87,13 @@ class ImageThread(threading.Thread):
             self.conn = sock
 
         self.model = model
+        self.cnt = 0
         
 
     def run(self):
         key = -1
         global Boundary # 쓰레드 공유변수
+        global driving_type
 
         cap = cv2.VideoCapture(camera_num)    
         # cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
@@ -94,15 +101,26 @@ class ImageThread(threading.Thread):
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
         cur_angle = 0
+        csv_angle = 0
 
 
         # STM32 연결돼있고 AUTO모드이면 일단 출발
-        if FLAG_SERIAL == 'CONNECTED' and DRIVING_TYPE == 'AUTO':
+        if FLAG_SERIAL == 'CONNECTED' and driving_type == 'AUTO':
             ser.write(b'w')
             ser.write(b'w')
 
         while True:
             ret, frame = cap.read()
+            key = cv2.waitKey(1)
+
+            if (97 <= key <= 122) or (65 <= key <= 90):
+                key = chr(key).lower()
+            elif key == 27:
+                break;            
+            # frame 경로
+            self.path = './data/frame' + str(self.cnt) + '.jpg'
+            cv2.imwrite(self.path, frame)
+            self.cnt += 1
 
             if not ret:
                 print("Failed to capture frame.")
@@ -111,14 +129,11 @@ class ImageThread(threading.Thread):
             # 이미지 인코딩
             encoded_image = cv2.imencode(".jpg", frame)[1].tobytes()
 
-
             # SLAM 이용하면 서버와 통신해야됨
             if DRIVE_WITH_SLAM_TYPE == 'WITH':
                 size = len(encoded_image).to_bytes(4,byteorder='little')
                 self.conn.send(size)
                 self.conn.send(encoded_image)
-
-
 
             frame_str = base64.b64encode(encoded_image)
             
@@ -130,7 +145,19 @@ class ImageThread(threading.Thread):
             crop_img = image_array.copy()
                 
 
-            if DRIVING_TYPE == 'AUTO' : 
+            if driving_type == 'AUTO' : 
+                
+                # 'p' 눌렸을 때 멈추고 driving mode로 변환
+                if key == 'p':
+                    driving_type = 'MANUAL'
+                    
+                    # DRIVING 시작 지점 알려주기
+                    # with open('driving_log.csv', 'a', newline='') as csv_file:
+                    #     wr = csv.writer(csv_file)
+                    #     wr.writerow(["[ DRIVING START FROM HERE ]"])
+
+                    #ser.write(b's')
+
                 # transform RGB to BGR for cv2
                 image_array = image_array[:, :, ::-1]
                 image_array = transformations(image_array)
@@ -149,52 +176,73 @@ class ImageThread(threading.Thread):
                 
                 print(diff_angle)
                 cur_angle = steering_angle
-                cv2.waitKey(33)
-
-                if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
-                    if diff_angle == 0: 
-                        continue
-                    
-                    elif diff_angle > 0: #angle이 오른쪽으로 꺽여야함
+                
+                #수정하기!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                # angle > 1 일 때도 고려
+                #if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
+                Boundary = "IN BOUNDARY"
+                print(Boundary)
+                if Boundary == 'IN BOUNDARY':
+                    if diff_angle > 0: #angle이 오른쪽으로 꺽여야함
                         for i in range(diff_angle) :
-                            ser.write(b'd')
+                            #ser.write(b'd')
+                            csv_angle += 0.25
 
                     else : # angle이 왼쪽으로 꺽여야 함
                         for i in range(-diff_angle) :
-                            ser.write(b'a')
+                            #ser.write(b'a')
+                            csv_angle -= 0.25
+                
+                # csv 파일 열기/쓰기
+                with open('driving_log.csv', 'a', newline='') as csv_file:
+                    wr = csv.writer(csv_file)
+                    wr.writerow([self.path, str(csv_angle)])
 
+            elif driving_type == 'MANUAL' :
 
-            elif DRIVING_TYPE == 'MANUAL' : 
-                if (97 <= key <= 122) or (65 <= key <= 90):
-                    key = chr(key).lower()
-                    print(key)
+                if key == 'r':
+                    driving_type = 'AUTO'
+                    
+                    # DRIVING 시작 지점 알려주기
+                    # with open('driving_log.csv', 'a', newline='') as csv_file:
+                    #     wr = csv.writer(csv_file)
+                    #     wr.writerow(["[ AUTO RESTART FROM HERE ]"])
 
-                if FLAG_SERIAL == 'CONNECTED':
+                    #ser.write(b'w')
+                    #ser.write(b'w')
+
+                # if FLAG_SERIAL == 'CONNECTED':
+                if FLAG_SERIAL == 'DISCONNECTED':
                     if key == 'w':
-                        ser.write(b'w')
+                        print("W")
+                        #ser.write(b'w')
 
                     elif key == 'a':
-                        ser.write(b'a')
+                        print("A")
+                        #ser.write(b'a')
+                        csv_angle -= 0.25
 
                     elif key == 's':
-                        ser.write(b's')
+                        print("S")
+                        #ser.write(b's')
 
                     elif key == 'd':
-                        ser.write(b'd')
+                        print("D")
+                        #ser.write(b'd')
+                        csv_angle += 0.25
 
                     elif key == 'x':
-                        ser.write(b'x')
-                    
+                        print("X")
+                        #ser.write(b'x')
 
-            # if OS_TYPE == 'UBUNTU': # 현재 맥북에서 에러때문에 imshow 실행 안됨
-            try:
-                # OpenCV 코드 실행
+                # csv 파일 열기/쓰기
+                with open('driving_log.csv', 'a', newline='') as csv_file:
+                    wr = csv.writer(csv_file)
+                    wr.writerow([self.path, str(csv_angle)])
+                    
+            
+            if OS_TYPE == 'UBUNTU':
                 cv2.imshow("autodrive_crop", crop_img)
-                key = cv2.waitKey(33)
-                
-            except cv2.error as e:
-                print("OpenCV error:", e)
-            ser.write(b'a')
 
         if DRIVE_WITH_SLAM_TYPE == 'WITH':
             # 연결 종료
@@ -207,7 +255,6 @@ class StringThread(threading.Thread):
         threading.Thread.__init__(self)
         self.conn = sock
         
-
     def run(self):
         
         global Boundary # 쓰레드 공유변수
@@ -298,4 +345,3 @@ if __name__ == '__main__':
         # 문자열 받는 쓰레드 시작
         string_thread = StringThread()
         string_thread.start()
-

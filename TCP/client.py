@@ -95,8 +95,8 @@ class ImageThread(threading.Thread):
         global Boundary # 쓰레드 공유변수
         global driving_type
 
-        cap = cv2.VideoCapture(camera_num)    
-        # cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
+        #cap = cv2.VideoCapture(camera_num)    
+        cap = cv2.VideoCapture('/home/suhyun/slam/ORBSLAM_capstone/TCP/풋살1.mp4')
         
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
@@ -111,7 +111,7 @@ class ImageThread(threading.Thread):
 
         while True:
             ret, frame = cap.read()
-            key = cv2.waitKey(33)
+            key = cv2.waitKey(1)
 
             if (97 <= key <= 122) or (65 <= key <= 90):
                 key = chr(key).lower()
@@ -157,7 +157,7 @@ class ImageThread(threading.Thread):
                         wr.writerow(["[ DRIVING START FROM HERE ]"])
 
                     #ser.write(b's')
-                    continue
+                    #continue
 
                 # transform RGB to BGR for cv2
                 image_array = image_array[:, :, ::-1]
@@ -177,13 +177,12 @@ class ImageThread(threading.Thread):
                 
                 print(diff_angle)
                 cur_angle = steering_angle
-                cv2.waitKey(33)
                 
                 #수정하기!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # angle > 1 일 때도 고려
                 #if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
-                Boundary = "IN BOUNDARY"
-                print(Boundary)
+                # Boundary = "IN BOUNDARY"
+                # print(Boundary)
                 if Boundary == 'IN BOUNDARY':
                     if diff_angle == 0: 
                         continue
@@ -215,7 +214,7 @@ class ImageThread(threading.Thread):
 
                     #ser.write(b'w')
                     #ser.write(b'w')
-                    continue
+                    #continue
 
                 # if FLAG_SERIAL == 'CONNECTED':
                 if FLAG_SERIAL == 'DISCONNECTED':

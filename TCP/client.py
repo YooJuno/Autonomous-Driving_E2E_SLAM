@@ -20,12 +20,9 @@ from io import BytesIO
 import socket
 import client_func as juno
 
-<<<<<<< HEAD
 import pandas as pd
 import csv
 
-=======
->>>>>>> b2ac15133a3a51ce3758e38945875eebc4ce9010
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 

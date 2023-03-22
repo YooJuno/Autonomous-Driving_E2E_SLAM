@@ -1,5 +1,7 @@
 # Ignore all
 *
+TCP/data/
+TCP/driving_log.csv
 
 # Unignore all with extensions
 !*.*

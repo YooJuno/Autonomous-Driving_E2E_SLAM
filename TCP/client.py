@@ -20,9 +20,12 @@ from io import BytesIO
 import socket
 import client_func as juno
 
+<<<<<<< HEAD
 import pandas as pd
 import csv
 
+=======
+>>>>>>> b2ac15133a3a51ce3758e38945875eebc4ce9010
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
@@ -111,6 +114,7 @@ class ImageThread(threading.Thread):
 
         while True:
             ret, frame = cap.read()
+<<<<<<< HEAD
             key = cv2.waitKey(1)
 
             if (97 <= key <= 122) or (65 <= key <= 90):
@@ -121,6 +125,14 @@ class ImageThread(threading.Thread):
             self.path = './data/frame' + str(self.cnt) + '.jpg'
             cv2.imwrite(self.path, frame)
             self.cnt += 1
+=======
+            
+            key = cv2.waitKey(33)
+
+            if (97 <= key <= 122) or (65 <= key <= 90):
+                key = chr(key).lower()
+                print(key)
+>>>>>>> b2ac15133a3a51ce3758e38945875eebc4ce9010
 
             if not ret:
                 print("Failed to capture frame.")
@@ -200,6 +212,7 @@ class ImageThread(threading.Thread):
 
             elif driving_type == 'MANUAL' :
 
+<<<<<<< HEAD
                 if key == 'r':
                     driving_type = 'AUTO'
                     
@@ -210,6 +223,9 @@ class ImageThread(threading.Thread):
 
                     #ser.write(b'w')
                     #ser.write(b'w')
+=======
+            elif DRIVING_TYPE == 'MANUAL' : 
+>>>>>>> b2ac15133a3a51ce3758e38945875eebc4ce9010
 
                 # if FLAG_SERIAL == 'CONNECTED':
                 if FLAG_SERIAL == 'DISCONNECTED':
@@ -232,6 +248,7 @@ class ImageThread(threading.Thread):
                         csv_angle += 0.25
 
                     elif key == 'x':
+<<<<<<< HEAD
                         print("X")
                         #ser.write(b'x')
 
@@ -239,10 +256,17 @@ class ImageThread(threading.Thread):
                 with open('driving_log.csv', 'a', newline='') as csv_file:
                     wr = csv.writer(csv_file)
                     wr.writerow([self.path, str(csv_angle)])
+=======
+                        ser.write(b'x')
+>>>>>>> b2ac15133a3a51ce3758e38945875eebc4ce9010
                     
             
             if OS_TYPE == 'UBUNTU':
                 cv2.imshow("autodrive_crop", crop_img)
+<<<<<<< HEAD
+=======
+            
+>>>>>>> b2ac15133a3a51ce3758e38945875eebc4ce9010
 
         if DRIVE_WITH_SLAM_TYPE == 'WITH':
             # 연결 종료

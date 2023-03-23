@@ -194,7 +194,8 @@ class ImageThread(threading.Thread):
                             csv_angle -= 0.25
                 
                 # csv 파일 열기/쓰기
-                with open('driving_log.csv', 'a', newline='') as csv_file:
+                #with open('driving_log.csv', 'a', newline='') as csv_file:
+                with open('driving_log_all.csv', 'a', newline='') as csv_file:
                     wr = csv.writer(csv_file)
                     wr.writerow([self.path, str(csv_angle)])
 
@@ -236,7 +237,7 @@ class ImageThread(threading.Thread):
                         #ser.write(b'x')
 
                 # csv 파일 열기/쓰기
-                with open('driving_log.csv', 'a', newline='') as csv_file:
+                with open('driving_log_keyboard.csv', 'a', newline='') as csv_file:
                     wr = csv.writer(csv_file)
                     wr.writerow([self.path, str(csv_angle)])
                     

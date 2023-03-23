@@ -240,6 +240,10 @@ class ImageThread(threading.Thread):
                 with open('driving_log_keyboard.csv', 'a', newline='') as csv_file:
                     wr = csv.writer(csv_file)
                     wr.writerow([self.path, str(csv_angle)])
+                
+                with open('driving_log_all.csv', 'a', newline='') as csv_file:
+                    wr = csv.writer(csv_file)
+                    wr.writerow([self.path, str(csv_angle)])
                     
             
             if OS_TYPE == 'UBUNTU':

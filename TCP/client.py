@@ -33,8 +33,8 @@ transformations = T.Compose(
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 
-FLAG_SERIAL = 'DISCONNECTED'
-# FLAG_SERIAL = 'CONNECTED'
+# FLAG_SERIAL = 'DISCONNECTED'
+FLAG_SERIAL = 'CONNECTED'
 
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
@@ -149,8 +149,9 @@ class ImageThread(threading.Thread):
                 
                 # 'p' 눌렸을 때 멈추고 driving mode로 변환
                 if key == 'p':
-                    driving_type = 'MANUAL'
                     ser.write(b's')
+                    driving_type = 'MANUAL'
+                    
 
                 # transform RGB to BGR for cv2
                 image_array = image_array[:, :, ::-1]
@@ -191,46 +192,46 @@ class ImageThread(threading.Thread):
                     wr = csv.writer(csv_file)
                     wr.writerow([self.path, str(csv_angle)])
 
-            elif driving_type == 'MANUAL' :
-
+            # :elif driving_type == 'MANUAL' :
+            else:
+                print('sibal\n'*10)
                 if key == 'r':
                     driving_type = 'AUTO'
                     ser.write(b'w')
                     ser.write(b'w')
+                else:
+                    if FLAG_SERIAL == 'CONNECTED':
+                        if key == 'w':
+                            print("W")
+                            ser.write(b'w')
 
-                # if FLAG_SERIAL == 'CONNECTED':
-                if FLAG_SERIAL == 'DISCONNECTED':
-                    if key == 'w':
-                        print("W")
-                        ser.write(b'w')
+                        elif key == 'a':
+                            print("A")
+                            ser.write(b'a')
+                            csv_angle -= 0.25
 
-                    elif key == 'a':
-                        print("A")
-                        ser.write(b'a')
-                        csv_angle -= 0.25
+                        elif key == 's':
+                            print("S")
+                            ser.write(b's')
 
-                    elif key == 's':
-                        print("S")
-                        ser.write(b's')
+                        elif key == 'd':
+                            print("D")
+                            ser.write(b'd')
+                            csv_angle += 0.25
 
-                    elif key == 'd':
-                        print("D")
-                        ser.write(b'd')
-                        csv_angle += 0.25
+                        elif key == 'x':
+                            print("X")
+                            ser.write(b'x')
 
-                    elif key == 'x':
-                        print("X")
-                        ser.write(b'x')
-
-                # csv 파일 열기/쓰기
-                with open('driving_log_keyboard.csv', 'a', newline='') as csv_file:
-                    wr = csv.writer(csv_file)
-                    wr.writerow([self.path, str(csv_angle)])
-                
-                with open('driving_log_all.csv', 'a', newline='') as csv_file:
-                    wr = csv.writer(csv_file)
-                    wr.writerow([self.path, str(csv_angle)])
+                    # csv 파일 열기/쓰기
+                    with open('driving_log_keyboard.csv', 'a', newline='') as csv_file:
+                        wr = csv.writer(csv_file)
+                        wr.writerow([self.path, str(csv_angle)])
                     
+                    with open('driving_log_all.csv', 'a', newline='') as csv_file:
+                        wr = csv.writer(csv_file)
+                        wr.writerow([self.path, str(csv_angle)])
+                        
             
             if OS_TYPE == 'UBUNTU':
                 cv2.imshow("autodrive_crop", crop_img)

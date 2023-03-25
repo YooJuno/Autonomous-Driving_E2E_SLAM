@@ -43,8 +43,8 @@ OS_TYPE = 'UBUNTU'
 # DRIVING_TYPE = 'AUTO'
 driving_type = 'AUTO'
 
-DRIVE_WITH_SLAM_TYPE = 'WITH'
-# DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
+# DRIVE_WITH_SLAM_TYPE = 'WITH'
+DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
 
 
 
@@ -59,7 +59,7 @@ DRIVE_WITH_SLAM_TYPE = 'WITH'
 
 
 if OS_TYPE == 'UBUNTU':
-    camera_num = -1
+    camera_num = 2
 elif OS_TYPE == 'MAC':
     camera_num = 0
 
@@ -181,11 +181,15 @@ class ImageThread(threading.Thread):
                         for i in range(diff_angle) :
                             ser.write(b'd')
                             csv_angle += 0.25
+                            if csv_angle >= 1 :
+                                csv_angle = 1
 
                     else : # angle이 왼쪽으로 꺽여야 함
                         for i in range(-diff_angle) :
                             ser.write(b'a')
                             csv_angle -= 0.25
+                            if csv_angle <= -1 :
+                                csv_angle = -1
                 
                 # csv 파일 열기/쓰기
                 with open('driving_log_all.csv', 'a', newline='') as csv_file:
@@ -209,6 +213,8 @@ class ImageThread(threading.Thread):
                             print("A")
                             ser.write(b'a')
                             csv_angle -= 0.25
+                            if csv_angle <= -1 :
+                                csv_angle = -1
 
                         elif key == 's':
                             print("S")
@@ -218,6 +224,8 @@ class ImageThread(threading.Thread):
                             print("D")
                             ser.write(b'd')
                             csv_angle += 0.25
+                            if csv_angle >= 1 :
+                                csv_angle = 1
 
                         elif key == 'x':
                             print("X")

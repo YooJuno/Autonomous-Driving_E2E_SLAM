@@ -28,7 +28,7 @@ using namespace cv;
 int main(int argc, char **argv)
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {cd 
+    if (sockfd == -1) {
         cout << "Failed to create socket." << endl;
         return 1;
     }

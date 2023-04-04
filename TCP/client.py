@@ -9,30 +9,23 @@ import threading
 import cv2
 from PIL import Image
 import numpy as np
-
 import torch
 from torch.autograd import Variable
 import torchvision.transforms as T
-
 import base64
 from io import BytesIO
-
 import socket
+import csv
+
+
+
 import client_func as juno
 import yolo as od
 
-import pandas as pd
-import csv
 
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
-
-
-
-# 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
-# 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
-# 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 
 # FLAG_SERIAL = 'DISCONNECTED'
 FLAG_SERIAL = 'CONNECTED'
@@ -40,19 +33,11 @@ FLAG_SERIAL = 'CONNECTED'
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
 
-# DRIVING_TYPE = 'MANUAL'
-# DRIVING_TYPE = 'AUTO'
-driving_type = 'AUTO'
+# driving_type = 'AUTO'
+driving_type = 'MANUAL'
 
 DRIVE_WITH_SLAM_TYPE = 'WITH'
 # DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
-
-
-
-# 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
-# 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
-
-
 
 
 
@@ -62,6 +47,8 @@ if OS_TYPE == 'UBUNTU':
     camera_num = 2
 elif OS_TYPE == 'MAC':
     camera_num = 0
+
+
 
 # for multi thread
 Boundary = ''
@@ -75,86 +62,7 @@ frame_yolo = 0
 # STM32F411RE 연결할지 말지
 if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
     ser = juno.serial_connect(OS_TYPE)
-
-
-def detect(img):
-    # Stop signal
-    sign = 0
     
-    # Load Yolo
-    net = cv2.dnn.readNet("yolov4-tiny.weights", "yolov4-tiny.cfg")
-    classes = []
-    with open("coco.names", "r") as f:
-        classes = [line.strip() for line in f.readlines()]
-
-    layer_names = net.getLayerNames()
-    output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
-
-    # img = cv2.resize(img, (640, 480))
-
-    height, width, channels = img.shape
-
-    # Detecting objects
-    blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
-    net.setInput(blob)
-    outs = net.forward(output_layers)
-
-    # Showing informations on the screen
-    class_ids = []
-    confidences = []
-    boxes = []
-    for out in outs:
-        for detection in out:
-            scores = detection[5:]
-            class_id = np.argmax(scores)
-            confidence = scores[class_id]
-            if confidence > 0.5:
-                # Object detected
-                center_x = int(detection[0] * width)
-                center_y = int(detection[1] * height)
-                w = int(detection[2] * width)
-                h = int(detection[3] * height)
-
-                # Rectangle coordinates
-                x = int(center_x - w / 2)
-                y = int(center_y - h / 2)
-
-                boxes.append([x, y, w, h])
-                confidences.append(float(confidence))
-                class_ids.append(class_id)
-
-    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-
-    font = cv2.FONT_HERSHEY_PLAIN
-    for i in range(len(boxes)):
-        if i in indexes:
-            x, y, w, h = boxes[i]
-            label = str(classes[class_ids[i]])
-            if label == "person" and w>=40:
-                sign = 1
-                print("person1")
-                break
-            else:
-                sign = 0
-
-    return sign
-
-
-class YoloThread(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-        
-    def run(self):
-        global frame_yolo
-        cnt = 0
-        while(1):
-            if cnt % interval == 0 :
-                person = detect(frame_yolo)
-                print('person')
-                cnt = 0
-            cnt += 1
-        
-
 
 
 # 이미지를 보내는 쓰레드
@@ -238,8 +146,6 @@ class ImageThread(threading.Thread):
                 if key == 'p':
                     ser.write(b's')
                     driving_type = 'MANUAL'
-                
-                # Object Detection Part!!!
                     
                      
 
@@ -256,7 +162,7 @@ class ImageThread(threading.Thread):
                 # diff_angle = diff_angle / 10
                 diff_angle = int(diff_angle)
 
-                #steering_angle 값을 quantization을 해야함
+                # steering_angle 값을 quantization을 해야함
                 # steering_angle = steering_angle-0.253
                 
                 # print(diff_angle)
@@ -347,7 +253,7 @@ class StringThread(threading.Thread):
         out_cnt = 0
         while True:
             data = self.conn.recv(1024).decode()
-            self.conn.recv(1024).decode()
+            self.conn.recv(1024).decode() # clear buffer
             
             if not data:
                 break
@@ -375,9 +281,11 @@ class StringThread(threading.Thread):
             elif ((juno_z < -0.317 * juno_x + 1.6) and (juno_z > -0.339 * juno_x + 1.473) and (juno_x  > -1.5)):
                 out_cnt = 0
                 print("between ATM and grass")
-            else : out_cnt = out_cnt + 1
+            else : 
+                out_cnt = out_cnt + 1
             
-            if out_cnt > 3:
+            # 좌표가 순간적으로 튀는 것을 방지하기 위해
+            if out_cnt > 10:
                 lock.acquire()
                 Boundary = 'OUT OF BOUNDARY'
                 lock.release()
@@ -387,7 +295,7 @@ class StringThread(threading.Thread):
             # 나갔으면
             if FLAG_SERIAL== 'CONNECTED' and Boundary == 'OUT OF BOUNDARY' and driving_type == 'AUTO':
                 ser.write(b's')
-                #driving_type = 'MANUAL'
+                driving_type = 'MANUAL'
             
 
 
@@ -426,9 +334,6 @@ if __name__ == '__main__':
     # 이미지 보내는 쓰레드 시작
     image_thread = ImageThread(model, args)
     image_thread.start()
-    
-    # yolo_thread = YoloThread()
-    # yolo_thread.start()
     
     if DRIVE_WITH_SLAM_TYPE == 'WITH':
         # 문자열 받는 쓰레드 시작

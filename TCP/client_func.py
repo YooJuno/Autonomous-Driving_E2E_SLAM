@@ -54,7 +54,6 @@ def detect(img):
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 
-    font = cv2.FONT_HERSHEY_PLAIN
     for i in range(len(boxes)):
         if i in indexes:
             x, y, w, h = boxes[i]
@@ -67,6 +66,21 @@ def detect(img):
                 sign = 0
 
     return sign
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -123,6 +137,16 @@ class NetworkNvidia(nn.Module):
 
 
 
+
+
+
+
+
+
+
+
+
+
 def serial_connect(os_type):
 
     if os_type == 'UBUNTU': # UBUNTU
@@ -146,6 +170,18 @@ def serial_connect(os_type):
         ser.open()
 
     return ser
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

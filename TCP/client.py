@@ -103,8 +103,6 @@ class ImageThread(threading.Thread):
         cnt = 0
         while True:
             ret, frame = cap.read()
-            frame_yolo = frame
-            juno_person = capstone.detect(frame_yolo)
             key = cv2.waitKey(1)  
             cnt = cnt + 1
 

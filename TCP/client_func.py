@@ -11,9 +11,9 @@ def detect(img):
     sign = 0
     
     # Load Yolo
-    net = cv2.dnn.readNet("yolov4-tiny.weights", "yolov4-tiny.cfg")
+    net = cv2.dnn.readNet("./yolo/yolov4-tiny.weights", "./yolo/yolov4-tiny.cfg")
     classes = []
-    with open("coco.names", "r") as f:
+    with open("./yolo/coco.names", "r") as f:
         classes = [line.strip() for line in f.readlines()]
 
     layer_names = net.getLayerNames()

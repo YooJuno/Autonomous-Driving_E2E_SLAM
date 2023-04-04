@@ -19,6 +19,7 @@ from io import BytesIO
 
 import socket
 import client_func as juno
+import yolo as od
 
 import pandas as pd
 import csv
@@ -43,12 +44,11 @@ OS_TYPE = 'UBUNTU'
 # DRIVING_TYPE = 'AUTO'
 driving_type = 'AUTO'
 
-# DRIVE_WITH_SLAM_TYPE = 'WITH'
-DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
+DRIVE_WITH_SLAM_TYPE = 'WITH'
+# DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
 
 
 
-# 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 # 여기만 건드세요 #
 
@@ -67,11 +67,93 @@ elif OS_TYPE == 'MAC':
 Boundary = ''
 lock = threading.Lock()
 sock = 0
+interval = 10
+frame_yolo = 0 
+
 
 
 # STM32F411RE 연결할지 말지
 if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
     ser = juno.serial_connect(OS_TYPE)
+
+
+def detect(img):
+    # Stop signal
+    sign = 0
+    
+    # Load Yolo
+    net = cv2.dnn.readNet("yolov4-tiny.weights", "yolov4-tiny.cfg")
+    classes = []
+    with open("coco.names", "r") as f:
+        classes = [line.strip() for line in f.readlines()]
+
+    layer_names = net.getLayerNames()
+    output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
+
+    # img = cv2.resize(img, (640, 480))
+
+    height, width, channels = img.shape
+
+    # Detecting objects
+    blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+    net.setInput(blob)
+    outs = net.forward(output_layers)
+
+    # Showing informations on the screen
+    class_ids = []
+    confidences = []
+    boxes = []
+    for out in outs:
+        for detection in out:
+            scores = detection[5:]
+            class_id = np.argmax(scores)
+            confidence = scores[class_id]
+            if confidence > 0.5:
+                # Object detected
+                center_x = int(detection[0] * width)
+                center_y = int(detection[1] * height)
+                w = int(detection[2] * width)
+                h = int(detection[3] * height)
+
+                # Rectangle coordinates
+                x = int(center_x - w / 2)
+                y = int(center_y - h / 2)
+
+                boxes.append([x, y, w, h])
+                confidences.append(float(confidence))
+                class_ids.append(class_id)
+
+    indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+
+    font = cv2.FONT_HERSHEY_PLAIN
+    for i in range(len(boxes)):
+        if i in indexes:
+            x, y, w, h = boxes[i]
+            label = str(classes[class_ids[i]])
+            if label == "person" and w>=40:
+                sign = 1
+                print("person1")
+                break
+            else:
+                sign = 0
+
+    return sign
+
+
+class YoloThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        
+    def run(self):
+        global frame_yolo
+        cnt = 0
+        while(1):
+            if cnt % interval == 0 :
+                person = detect(frame_yolo)
+                print('person')
+                cnt = 0
+            cnt += 1
+        
 
 
 
@@ -94,6 +176,7 @@ class ImageThread(threading.Thread):
         key = -1
         global Boundary # 쓰레드 공유변수
         global driving_type
+        global frame
 
         cap = cv2.VideoCapture(camera_num)    
         # cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
@@ -102,16 +185,21 @@ class ImageThread(threading.Thread):
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
         cur_angle = 0
         csv_angle = 0
-
-
+        
         # STM32 연결돼있고 AUTO모드이면 일단 출발
         if FLAG_SERIAL == 'CONNECTED' and driving_type == 'AUTO':
             ser.write(b'w')
             ser.write(b'w')
 
+
+        # speedz flag
+        prev_person = 0
+        cnt = 0
         while True:
             ret, frame = cap.read()
-            key = cv2.waitKey(1)
+            frame_yolo = frame
+            key = cv2.waitKey(1)  
+            cnt = cnt + 1
 
             if (97 <= key <= 122) or (65 <= key <= 90):
                 key = chr(key).lower()
@@ -126,7 +214,7 @@ class ImageThread(threading.Thread):
                 print("Failed to capture frame.")
                 break
             
-            # 이미지 인코딩
+            # 이미지 인코딩F
             encoded_image = cv2.imencode(".jpg", frame)[1].tobytes()
 
             # SLAM 이용하면 서버와 통신해야됨
@@ -141,17 +229,19 @@ class ImageThread(threading.Thread):
             image = image.resize((320,160))
 
             image_array = np.array(image.copy())
-            image_array = image_array[65:-25, :, :]
+            image_array = image_array[40:-50, :]
             crop_img = image_array.copy()
                 
 
             if driving_type == 'AUTO' : 
-                
                 # 'p' 눌렸을 때 멈추고 driving mode로 변환
                 if key == 'p':
                     ser.write(b's')
                     driving_type = 'MANUAL'
+                
+                # Object Detection Part!!!
                     
+                     
 
                 # transform RGB to BGR for cv2
                 image_array = image_array[:, :, ::-1]
@@ -169,14 +259,11 @@ class ImageThread(threading.Thread):
                 #steering_angle 값을 quantization을 해야함
                 # steering_angle = steering_angle-0.253
                 
-                print(diff_angle)
+                # print(diff_angle)
                 cur_angle = steering_angle
                 
                 # angle > 1 일 때도 고려
-                #if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
-                Boundary = "IN BOUNDARY"
-                print(Boundary)
-                if Boundary == 'IN BOUNDARY':
+                if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
                     if diff_angle > 0: #angle이 오른쪽으로 꺽여야함
                         for i in range(diff_angle) :
                             ser.write(b'd')
@@ -196,9 +283,7 @@ class ImageThread(threading.Thread):
                     wr = csv.writer(csv_file)
                     wr.writerow([self.path, str(csv_angle)])
 
-            # :elif driving_type == 'MANUAL' :
-            else:
-                print('sibal\n'*10)
+            elif driving_type == 'MANUAL' :
                 if key == 'r':
                     driving_type = 'AUTO'
                     ser.write(b'w')
@@ -259,6 +344,7 @@ class StringThread(threading.Thread):
         
         global Boundary # 쓰레드 공유변수
         # main.
+        out_cnt = 0
         while True:
             data = self.conn.recv(1024).decode()
             self.conn.recv(1024).decode()
@@ -277,22 +363,21 @@ class StringThread(threading.Thread):
             Boundary = 'IN BOUNDARY' # 범위 안에 있음
             lock.release()
             
-            if ( 0 < juno_x and juno_x < 2.2) and ( (juno_z > 0.813*juno_x + -0.163-1) and (juno_z <0.813*juno_x + 0.36) ):
+            if ((juno_z < 6.105 * juno_x + 0.388) and (juno_z > 6.105 * juno_x - 0.139) and (juno_z < -0.347 * juno_x + 0.571)):
+                out_cnt = 0
                 print("between HD and NH")
-            
-            elif (2.15 < juno_x) and (1.9 < juno_z and juno_z < 3.4):
-                print("Corner 1")
-            
-            elif ( -2.7 < juno_x and juno_x < 2.15) and (3.4 < juno_z and juno_z < 9.1 ):
+            elif ((juno_z < -0.347 * juno_x + 0.571) and (juno_z > -0.340 * juno_x + 0.444) and (juno_z < 6.37 * juno_x + 9.446)):
+                out_cnt = 0
                 print("between HD and grass")
+            elif ((juno_z < 6.37 * juno_x + 9.446) and (juno_z > 7.52 * juno_x + 10.4) and (juno_z < -0.317 * juno_x + 1.6)) :
+                out_cnt = 0
+                print("between ATM and grass")
+            elif ((juno_z < -0.317 * juno_x + 1.6) and (juno_z > -0.339 * juno_x + 1.473) and (juno_x  > -1.5)):
+                out_cnt = 0
+                print("between ATM and grass")
+            else : out_cnt = out_cnt + 1
             
-            elif (-3.17 < juno_x and juno_x < -2.8) and (9.1 < juno_z and juno_z < 10.2):
-                print("in front of ATM")
-            
-            elif (-2.8 < juno_x and juno_x < -0.35) and (9.1 < juno_z and juno_z < 10.2):
-                print("in front of ATM")
-            
-            else:
+            if out_cnt > 3:
                 lock.acquire()
                 Boundary = 'OUT OF BOUNDARY'
                 lock.release()
@@ -300,8 +385,9 @@ class StringThread(threading.Thread):
 
 
             # 나갔으면
-            if FLAG_SERIAL== 'CONNECTED' and Boundary == 'OUT OF BOUNDARY':
+            if FLAG_SERIAL== 'CONNECTED' and Boundary == 'OUT OF BOUNDARY' and driving_type == 'AUTO':
                 ser.write(b's')
+                #driving_type = 'MANUAL'
             
 
 
@@ -340,8 +426,15 @@ if __name__ == '__main__':
     # 이미지 보내는 쓰레드 시작
     image_thread = ImageThread(model, args)
     image_thread.start()
-
+    
+    # yolo_thread = YoloThread()
+    # yolo_thread.start()
+    
     if DRIVE_WITH_SLAM_TYPE == 'WITH':
         # 문자열 받는 쓰레드 시작
         string_thread = StringThread()
         string_thread.start()
+
+
+
+

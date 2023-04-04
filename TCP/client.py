@@ -20,15 +20,13 @@ import csv
 
 
 import client_func as juno
-import yolo as od
-
 
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
 
-# FLAG_SERIAL = 'DISCONNECTED'
-FLAG_SERIAL = 'CONNECTED'
+FLAG_SERIAL = 'DISCONNECTED'
+# FLAG_SERIAL = 'CONNECTED'
 
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
@@ -36,8 +34,8 @@ OS_TYPE = 'UBUNTU'
 # driving_type = 'AUTO'
 driving_type = 'MANUAL'
 
-DRIVE_WITH_SLAM_TYPE = 'WITH'
-# DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
+# DRIVE_WITH_SLAM_TYPE = 'WITH'
+DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
 
 
 
@@ -86,8 +84,8 @@ class ImageThread(threading.Thread):
         global driving_type
         global frame
 
-        cap = cv2.VideoCapture(camera_num)    
-        # cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
+        # cap = cv2.VideoCapture(camera_num)    
+        cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
         
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
@@ -106,6 +104,7 @@ class ImageThread(threading.Thread):
         while True:
             ret, frame = cap.read()
             frame_yolo = frame
+            juno_person = od.detect(frame_yolo)
             key = cv2.waitKey(1)  
             cnt = cnt + 1
 

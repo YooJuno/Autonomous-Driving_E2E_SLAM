@@ -19,7 +19,7 @@ import csv
 
 
 
-import client_func as juno
+import client_func as capstone
 
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
@@ -59,7 +59,7 @@ frame_yolo = 0
 
 # STM32F411RE 연결할지 말지
 if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
-    ser = juno.serial_connect(OS_TYPE)
+    ser = capstone.serial_connect(OS_TYPE)
     
 
 
@@ -104,7 +104,7 @@ class ImageThread(threading.Thread):
         while True:
             ret, frame = cap.read()
             frame_yolo = frame
-            juno_person = od.detect(frame_yolo)
+            juno_person = capstone.detect(frame_yolo)
             key = cv2.waitKey(1)  
             cnt = cnt + 1
 
@@ -304,9 +304,9 @@ class StringThread(threading.Thread):
 
 if __name__ == '__main__':
 
-    args = juno.parsing()
+    args = capstone.parsing()
 
-    model = juno.NetworkNvidia()
+    model = capstone.NetworkNvidia()
 
     if OS_TYPE == 'UBUNTU': # UBUNTU
         try:

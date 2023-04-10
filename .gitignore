@@ -11,6 +11,7 @@ TCP/driving_log.csv
 
 CMakeLists.txt.user
 CMakeLists_modified.txt
+data_tmp/
 
 Examples/RGB-D/rgbd_tum
 Examples/RGB-D/rgbd_realsense_D435i

@@ -107,7 +107,15 @@ class ImageThread(threading.Thread):
             juno_person = capstone.detect(frame_yolo)
             key = cv2.waitKey(1)  
             cnt = cnt + 1
-
+            
+            ########################
+            if juno_person == 1:
+                ser.write(b's')
+                prev_person = juno_person
+            elif juno_person == 0 and prev_person == 1:
+                ser.write(b'w')
+            ########################
+            
             if (97 <= key <= 122) or (65 <= key <= 90):
                 key = chr(key).lower()
             elif key == 27:

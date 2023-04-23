@@ -82,6 +82,12 @@ int main(int argc, char **argv)
             cout << "Failed to receive data." << endl;
             break;
         }
+        // while (send(clientfd, buffer.data(), size, 0) == -1) {
+        //     cout << "Failed to send data." << endl;
+        //     break;
+        // }
+        //send(clientfd, buffer.data(), size)
+
         
         Mat frame = imdecode(buffer, IMREAD_COLOR);
         if (frame.empty()) {

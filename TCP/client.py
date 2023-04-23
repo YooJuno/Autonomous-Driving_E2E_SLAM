@@ -29,8 +29,8 @@ FLAG_SERIAL = 'CONNECTED'
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
 
-driving_type = 'AUTO'
-#driving_type = 'MANUAL'
+# driving_type = 'AUTO'
+driving_type = 'MANUAL'
 
 DRIVE_WITH_SLAM_TYPE = 'WITH'
 #DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
@@ -103,14 +103,15 @@ class ImageThread(threading.Thread):
                 break
             
             #YOLO
-            if cnt % 10 == 0:
-                juno_person = capstone.detect(frame)    
-                if juno_person == 1:
-                    ser.write(b's') 
-                elif juno_person == 0 and prev_person == 1:
-                    print("go again!!")
-                    ser.write(b'w')
-                prev_person = juno_person
+            if driving_type == 'AUTO' :
+                if cnt % 10 == 0:
+                    juno_person = capstone.detect(frame)    
+                    if juno_person == 1:
+                        ser.write(b's') 
+                    elif juno_person == 0 and prev_person == 1:
+                        print("go again!!")
+                        ser.write(b'w')
+                    prev_person = juno_person
 
             #KEY preprocessing
             if (97 <= key <= 122) or (65 <= key <= 90):
@@ -128,6 +129,7 @@ class ImageThread(threading.Thread):
             # PilotNet에 넣기위해 crop
             image_array, crop_img = capstone.PilotNet_crop_img(frame)
             
+            #자동
             if driving_type == 'AUTO' : 
                 if key == 'p':
                     ser.write(b's')

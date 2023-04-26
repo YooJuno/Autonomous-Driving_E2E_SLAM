@@ -4,6 +4,18 @@ import serial
 import numpy as np
 import cv2
 import torch.nn as nn
+import csv
+import base64
+from io import BytesIO
+import socket
+from PIL import Image
+import torch
+from torch.autograd import Variable
+import torchvision.transforms as T
+
+
+transformations = T.Compose(
+    [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
 
 def detect(img):
@@ -67,21 +79,131 @@ def detect(img):
 
     return sign
 
+def save_drivinglog(self, path, csv_angle):
+    with open('driving_log_all.csv', 'a', newline='') as csv_file:
+        wr = csv.writer(csv_file)
+        wr.writerow([self.path, str(csv_angle)])
 
+def save_drivingframe(self, frame):
+    self.path = './data/frame' + str(self.cnt) + '.jpg'
+    cv2.imwrite(self.path, frame)
+    self.cnt += 1
+    
+def send_img_toSLAM(self, frame):
+    encoded_image = cv2.imencode(".jpg", frame)[1].tobytes()
+    size = len(encoded_image).to_bytes(4,byteorder='little')
+    self.conn.send(size)
+    self.conn.send(encoded_image)
+    frame_str = base64.b64encode(encoded_image)
+    frame = Image.open(BytesIO(base64.b64decode(frame_str)))
+    return frame
 
+def PilotNet_crop_img(frame):
+    frame = frame.resize((320,160))
+    image_array = np.array(frame.copy())
+    image_array = image_array[40:-50, :]
+    crop_img = image_array.copy()
+    return image_array, crop_img
+    
+def preprocess_PilotNetimg(image_array):
+    image_array = image_array[:, :, ::-1]
+    image_array = transformations(image_array)
+    image_tensor = torch.Tensor(image_array)
+    image_tensor = image_tensor.view(1, 3, 70, 320)
+    image_tensor = Variable(image_tensor)
+    return image_tensor
 
+def postprocess_PilotNet(self, image_tensor, cur_angle):
+    steering_angle = self.model(image_tensor).view(-1).data.numpy()[0] #angle
+    steering_angle = steering_angle * 20
+    diff_angle = steering_angle - cur_angle
+    diff_angle = int(diff_angle)
+    cur_angle = steering_angle
+    return diff_angle, cur_angle
 
+def auto_control_car(ser, diff_angle, csv_angle) :
+    if diff_angle > 0: #angle이 오른쪽으로 꺽여야함
+        for i in range(diff_angle) :
+            tmp = ser.write(b'd')
+            # print("ser test = ", tmp)
+            csv_angle += 0.25
+            if csv_angle >= 1 :
+                csv_angle = 1
+    else : # angle이 왼쪽으로 꺽여야 함
+        for i in range(-diff_angle) :
+            ser.write(b'a')
+            csv_angle -= 0.25
+            if csv_angle <= -1 :
+                csv_angle = -1
+    return csv_angle
 
+def keyboard_control_car(ser, key, csv_angle):
+    if key == 'w': 
+        print("W")
+        ser.write(b'w')
+    elif key == 'a':
+        print("A")
+        ser.write(b'a')
+        csv_angle -= 0.25
+        if csv_angle <= -1 :
+            csv_angle = -1
+    elif key == 's':
+        print("S")
+        ser.write(b's')
+    elif key == 'd':
+        print("D")
+        ser.write(b'd')
+        csv_angle += 0.25
+        if csv_angle >= 1 :
+            csv_angle = 1
+    elif key == 'x':
+        print("X")
+        ser.write(b'x')
+    return csv_angle
 
+def localization(juno_x, juno_z, out_cnt):
+    print("x : ", juno_x, "\nz : " , juno_z)
+    print()
+    if ((juno_z < 6.105 * juno_x + 0.388) and (juno_z > 6.105 * juno_x - 0.139) and (juno_z < -0.347 * juno_x + 0.571)):
+        out_cnt = 0
+        print("between HD and NH")
+    elif ((juno_z < -0.347 * juno_x + 0.571) and (juno_z > -0.340 * juno_x + 0.444) and (juno_z < 6.37 * juno_x + 9.446)):
+        out_cnt = 0
+        print("between HD and grass")
+    elif ((juno_z < 6.37 * juno_x + 9.446) and (juno_z > 7.52 * juno_x + 10.4) and (juno_z < -0.317 * juno_x + 1.6)) :
+        out_cnt = 0
+        print("between ATM and grass")
+    elif ((juno_z < -0.317 * juno_x + 1.6) and (juno_z > -0.339 * juno_x + 1.473) and (juno_x  > -1.5)):
+        out_cnt = 0
+        print("between ATM and grass")
+    else : 
+        out_cnt = out_cnt + 1
+    return out_cnt
 
+def serial_connect(os_type):
+    if os_type == 'UBUNTU': # UBUNTU
+        port_addr = "/dev/ttyACM0"
+        os.system("sudo chmod 777 /dev/ttyACM0")
+    elif os_type == 'MAC': # MAC OS
+        port_addr = "/dev/tty.usbmodem21403"
+    ser = serial.Serial(
+                        port=port_addr,
+                        baudrate=9600,
+                        parity=serial.PARITY_NONE,
+                        stopbits=serial.STOPBITS_ONE,
+                        bytesize=serial.EIGHTBITS,
+                        timeout=0
+                    )
+    if ser.isOpen() == False :
+        ser.open()
+    return ser
 
-
-
-
-
-
-
-
+def parsing():
+    parser = argparse.ArgumentParser(description='Auto Driving')
+    parser.add_argument('--model',type=str,default='./model/model-a-100_1.h5',help='')
+    parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
+    parser.add_argument('--PORT',type=str,default='1115',help='')
+    return parser.parse_args()
 
 
 class NetworkNvidia(nn.Module):
@@ -134,63 +256,3 @@ class NetworkNvidia(nn.Module):
         output = output.view(output.size(0), -1)
         output = self.linear_layers(output)
         return output
-
-
-
-
-
-
-
-
-
-
-
-
-
-def serial_connect(os_type):
-
-    if os_type == 'UBUNTU': # UBUNTU
-        port_addr = "/dev/ttyACM0"
-        os.system("sudo chmod 777 /dev/ttyACM0")
-
-
-    elif os_type == 'MAC': # MAC OS
-        port_addr = "/dev/tty.usbmodem21403"
-
-    ser = serial.Serial(
-                        port=port_addr,
-                        baudrate=9600,
-                        parity=serial.PARITY_NONE,
-                        stopbits=serial.STOPBITS_ONE,
-                        bytesize=serial.EIGHTBITS,
-                        timeout=0
-                    )
-
-    if ser.isOpen() == False :
-        ser.open()
-
-    return ser
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def parsing():
-
-    parser = argparse.ArgumentParser(description='Auto Driving')
-    parser.add_argument('--model',type=str,default='./model/model-a-100_1.h5',help='')
-    parser.add_argument('--IP',type=str,default='127.0.0.1',help='')
-    parser.add_argument('--PORT',type=str,default='1115',help='')
-
-    return parser.parse_args()

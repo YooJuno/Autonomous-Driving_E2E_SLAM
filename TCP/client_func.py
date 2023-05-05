@@ -79,8 +79,13 @@ def detect(img):
 
     return sign
 
+def save_debug_autolog(self, path, prev_angle, model_output, diff_angle):
+    with open(path, 'a', newline='') as csv_file:
+        wr = csv.writer(csv_file)
+        wr.writerow([self.path, str(prev_angle), str(model_output), str(diff_angle)])
+
 def save_drivinglog(self, path, csv_angle):
-    with open('driving_log_all.csv', 'a', newline='') as csv_file:
+    with open(path, 'a', newline='') as csv_file:
         wr = csv.writer(csv_file)
         wr.writerow([self.path, str(csv_angle)])
 
@@ -114,12 +119,15 @@ def preprocess_PilotNetimg(image_array):
     return image_tensor
 
 def postprocess_PilotNet(self, image_tensor, cur_angle):
+    prev_angle = cur_angle # 저장용
     steering_angle = self.model(image_tensor).view(-1).data.numpy()[0] #angle
-    steering_angle = steering_angle * 20
+    print('steering : ',steering_angle)
+    steering_angle = steering_angle * 5 # 핸들이 돌아갈 수 있는 정도 : 차량 바퀴가 돌아가는 정도 = 20
+    model_output = steering_angle # 저장용
     diff_angle = steering_angle - cur_angle
     diff_angle = int(diff_angle)
     cur_angle = steering_angle
-    return diff_angle, cur_angle
+    return diff_angle, cur_angle, prev_angle, model_output, diff_angle
 
 def auto_control_car(ser, diff_angle, csv_angle) :
     if diff_angle > 0: #angle이 오른쪽으로 꺽여야함
@@ -161,21 +169,54 @@ def keyboard_control_car(ser, key, csv_angle):
         ser.write(b'x')
     return csv_angle
 
+margin = 0.05
+def HDNH_left(juno_x):
+    juno_z = -28.149 * (juno_x - margin)  + 61.224
+    return juno_z
+
+def HDNH_right(juno_x):
+    juno_z = 488.375 * (juno_x + margin) - 1300.316
+    return juno_z
+
+def HDGR_top(juno_x):
+    juno_z = -0.027 * juno_x + 3.716 - margin
+    return juno_z
+
+def HDGR_bottom(juno_x):
+    juno_z = -0.029 * juno_x + 3.186 + margin
+    return juno_z
+
+def ATGR_left(juno_x):
+    juno_z = 19.543 * (juno_x - margin) + 169.985
+    return juno_z
+
+def ATGR_right(juno_x):
+    juno_z = 87.46 * (juno_x + margin) + 705.359
+    return juno_z
+
+def PB_bottom(juno_x):
+    juno_z = 0.023 * juno_x + 8.223 + margin
+    return juno_z
+
+def PB_top(juno_x):
+    juno_z = -0.034 * juno_x + 8.035 - margin
+    return juno_z
+
 def localization(juno_x, juno_z, out_cnt):
-    print("x : ", juno_x, "\nz : " , juno_z)
-    print()
-    if ((juno_z < 6.105 * juno_x + 0.388) and (juno_z > 6.105 * juno_x - 0.139) and (juno_z < -0.347 * juno_x + 0.571)):
+    # print("x : ", juno_x, "\nz : " , juno_z)
+    # print()
+    if ((juno_z > HDNH_left(juno_x)) and (juno_z > HDNH_right(juno_x)) and (juno_z < HDGR_top(juno_x))):
         out_cnt = 0
-        print("between HD and NH")
-    elif ((juno_z < -0.347 * juno_x + 0.571) and (juno_z > -0.340 * juno_x + 0.444) and (juno_z < 6.37 * juno_x + 9.446)):
+        # print("between HD and NH")
+    elif ((juno_z < HDGR_top(juno_x)) and (juno_z > HDGR_bottom(juno_x)) and (juno_z < ATGR_right(juno_x))):
         out_cnt = 0
-        print("between HD and grass")
-    elif ((juno_z < 6.37 * juno_x + 9.446) and (juno_z > 7.52 * juno_x + 10.4) and (juno_z < -0.317 * juno_x + 1.6)) :
+        # print("between HD and grass")
+    elif ((juno_z < ATGR_left(juno_x)) and (juno_z >ATGR_right(juno_x) ) and (juno_z < PB_top(juno_x))) :
         out_cnt = 0
-        print("between ATM and grass")
-    elif ((juno_z < -0.317 * juno_x + 1.6) and (juno_z > -0.339 * juno_x + 1.473) and (juno_x  > -1.5)):
+        # print("between ATM and grass")
+    elif ((juno_z <PB_top(juno_x)) and (juno_z > PB_bottom(juno_x)) and (juno_x  > - 10.559)):
         out_cnt = 0
-        print("between ATM and grass")
+        # print("infront of PyeongBong")
     else : 
         out_cnt = out_cnt + 1
     return out_cnt
@@ -184,6 +225,9 @@ def serial_connect(os_type):
     if os_type == 'UBUNTU': # UBUNTU
         port_addr = "/dev/ttyACM0"
         os.system("sudo chmod 777 /dev/ttyACM0")
+        os.system("rm -rf debug_autolog.csv")
+        os.system("rm -rf driving_log_all.csv")
+        os.system("rm -rf data")
     elif os_type == 'MAC': # MAC OS
         port_addr = "/dev/tty.usbmodem21403"
     ser = serial.Serial(

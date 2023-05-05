@@ -29,14 +29,14 @@ FLAG_SERIAL = 'CONNECTED'
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
 
-# driving_type = 'AUTO'
-driving_type = 'MANUAL'
+driving_type = 'AUTO'
+# driving_type = 'MANUAL'
 
 DRIVE_WITH_SLAM_TYPE = 'WITH'
 #DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
 
 if OS_TYPE == 'UBUNTU':
-    camera_num = 2
+    camera_num = -1
 elif OS_TYPE == 'MAC':
     camera_num = 0
 
@@ -95,6 +95,7 @@ class ImageThread(threading.Thread):
         csv_angle = 0
         
         while True:
+            print(driving_type)
             ret, frame = cap.read()
             key = cv2.waitKey(1)  
             cnt = cnt + 1
@@ -130,22 +131,22 @@ class ImageThread(threading.Thread):
             image_array, crop_img = capstone.PilotNet_crop_img(frame)
             
             #자동
-            if driving_type == 'AUTO' : 
+            if driving_type == 'AUTO' :
                 if key == 'p':
                     ser.write(b's')
                     driving_type = 'MANUAL'
 
                 # PilotNet에 넣고, 예측 조향값 후처리
                 image_tensor = capstone.preprocess_PilotNetimg(image_array)
-                diff_angle, cur_angle = capstone.postprocess_PilotNet(self, image_tensor, cur_angle)
+                diff_angle, cur_angle, prev_angle, model_ouput, diff_angle = capstone.postprocess_PilotNet(self, image_tensor, cur_angle)
                 
                 # 예측 조향값 차량 제어
-                if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
+                if FLAG_SERIAL == 'CONNECTED':
                     csv_angle = capstone.auto_control_car(ser, diff_angle, csv_angle)
                 
                 # driving log 저장
                 capstone.save_drivinglog(self, 'driving_log_all.csv',csv_angle)
-                
+                capstone.save_debug_autolog(self, 'debug_autolog.csv', prev_angle, model_ouput, diff_angle)
             #수동
             elif driving_type == 'MANUAL' :
                 if key == 'r':
@@ -187,8 +188,8 @@ class StringThread(threading.Thread):
             if not data:
                 break
             data = data.split(',')
-            juno_x = float(data[0])
-            juno_z = float(data[1])
+            juno_x = round(float(data[0][0:7]),3)
+            juno_z = round(float(data[1][0:7]),3)
 
             lock.acquire()
             Boundary = 'IN BOUNDARY' # 범위 안에 있음
@@ -196,17 +197,17 @@ class StringThread(threading.Thread):
             
             #냬 위치 파악
             out_cnt = capstone.localization(juno_x, juno_z, out_cnt)
-            
-            # 좌표가 순간적으로 튀는 것을 방지하기 위해
-            if out_cnt > 10:
-                lock.acquire()
-                Boundary = 'OUT OF BOUNDARY'
-                lock.release()
-                print(Boundary)
-            # 나갔으면
-            if FLAG_SERIAL== 'CONNECTED' and Boundary == 'OUT OF BOUNDARY' and driving_type == 'AUTO':
-                ser.write(b's')
-                driving_type = 'MANUAL'
+            # #_맵없이 할떄 임시로 지워둠.
+            # # 좌표가 순간적으로 튀는 것을 방지하기 위해
+            # if out_cnt > 10:
+            #     lock.acquire()
+            #     Boundary = 'OUT OF BOUNDARY'
+            #     lock.release()
+            #     print(Boundary)
+            # # 나갔으면
+            # if FLAG_SERIAL== 'CONNECTED' and Boundary == 'OUT OF BOUNDARY' and driving_type == 'AUTO':
+            #     ser.write(b's')
+            #     driving_type = 'MANUAL'
 
         # 연결 종료
         self.conn.close()
@@ -247,76 +248,3 @@ if __name__ == '__main__':
         # 문자열 받는 쓰레드 시작
         string_thread = StringThread()
         string_thread.start()
-        # yolo_thread = YoloThread()
-        # yolo_thread.start()
-
-
-# # yolo 쓰레드
-# class YoloThread(threading.Thread):
-#     def __init__(self):
-#         global sock
-#         threading.Thread.__init__(self)
-#         self.conn = sock
-        
-#     def run(self):        
-        
-#         global detect_sign
-#         global prev_detect
-        
-#         while True:
-#             data_img = self.conn.recv(1024).decode()
-#             self.conn.recv(1024).decode() # clear buffer
-            
-#             if not data_img:
-#                 break
-#             else:
-#                 print("yolo thread working")
-            
-#             img = cv2.imdecode(data_img, 1)
-            
-#             detect_sign = capstone.detect(img)
-            
-#             if detect_sign == 1:
-#                 ser.write(b's')
-#                 prev_detect = detect_sign
-#             elif detect_sign == 0 and prev_detect == 1:
-#                 ser.write(b'w')
-
-
-#         # 연결 종료
-#         self.conn.close()
-
-# # yolo 쓰레드
-# class YoloThread(threading.Thread):
-#     def __init__(self):
-#         global sock
-#         threading.Thread.__init__(self)
-#         self.conn = sock
-        
-#     def run(self):        
-        
-#         global detect_sign
-#         global prev_detect
-        
-#         while True:
-#             data_img = self.conn.recv(1024).decode()
-#             self.conn.recv(1024).decode() # clear buffer
-            
-#             if not data_img:
-#                 break
-#             else:
-#                 print("yolo thread working")
-            
-#             img = cv2.imdecode(data_img, 1)
-            
-#             detect_sign = capstone.detect(img)
-            
-#             if detect_sign == 1:
-#                 ser.write(b's')
-#                 prev_detect = detect_sign
-#             elif detect_sign == 0 and prev_detect == 1:
-#                 ser.write(b'w')
-
-
-#         # 연결 종료
-#         self.conn.close()

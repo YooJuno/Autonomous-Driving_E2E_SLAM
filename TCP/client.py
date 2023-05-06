@@ -29,11 +29,11 @@ FLAG_SERIAL = 'CONNECTED'
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
 
-driving_type = 'AUTO'
-# driving_type = 'MANUAL'
+# driving_type = 'AUTO'
+driving_type = 'MANUAL'
 
 DRIVE_WITH_SLAM_TYPE = 'WITH'
-#DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
+# DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
 
 if OS_TYPE == 'UBUNTU':
     camera_num = -1
@@ -80,6 +80,8 @@ class ImageThread(threading.Thread):
         
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1024)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768)
+        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 480)
+        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
         
         
         # STM32 연결돼있고 AUTO모드이면 일단 출발
@@ -108,7 +110,7 @@ class ImageThread(threading.Thread):
                 if cnt % 10 == 0:
                     juno_person = capstone.detect(frame)    
                     if juno_person == 1:
-                        ser.write(b's') 
+                        ser.write(b'x') 
                     elif juno_person == 0 and prev_person == 1:
                         print("go again!!")
                         ser.write(b'w')

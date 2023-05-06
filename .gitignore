@@ -2,6 +2,7 @@
 *
 TCP/data/
 TCP/driving_log.csv
+0505/
 
 # Unignore all with extensions
 !*.*

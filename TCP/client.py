@@ -33,7 +33,7 @@ OS_TYPE = 'UBUNTU'
 driving_type = 'MANUAL'
 
 DRIVE_WITH_SLAM_TYPE = 'WITH'
-# DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
+#DRIVE_WITH_SLAM_TYPE = 'WITHOUT'
 
 if OS_TYPE == 'UBUNTU':
     camera_num = -1
@@ -106,15 +106,15 @@ class ImageThread(threading.Thread):
                 break
             
             #YOLO
-            if driving_type == 'AUTO' :
-                if cnt % 10 == 0:
-                    juno_person = capstone.detect(frame)    
-                    if juno_person == 1:
-                        ser.write(b'x') 
-                    elif juno_person == 0 and prev_person == 1:
-                        print("go again!!")
-                        ser.write(b'w')
-                    prev_person = juno_person
+            # if driving_type == 'AUTO' :
+            #     if cnt % 10 == 0:
+            #         juno_person = capstone.detect(frame)    
+            #         if juno_person == 1:
+            #             ser.write(b'x') 
+            #         elif juno_person == 0 and prev_person == 1:
+            #             print("go again!!")
+            #             ser.write(b'w')
+            #         prev_person = juno_person
 
             #KEY preprocessing
             if (97 <= key <= 122) or (65 <= key <= 90):

@@ -123,7 +123,7 @@ def postprocess_PilotNet(self, image_tensor, cur_angle):
     prev_angle = cur_angle # 저장용
     steering_angle = self.model(image_tensor).view(-1).data.numpy()[0] #angle
     print('steering : ',steering_angle)
-    steering_angle = steering_angle * 20 # 핸들이 돌아갈 수 있는 정도 : 차량 바퀴가 돌아가는 정도 = 20
+    steering_angle = steering_angle * 30 # 핸들이 돌아갈 수 있는 정도 : 차량 바퀴가 돌아가는 정도 = 20
     model_output = steering_angle # 저장용
     diff_angle = steering_angle - cur_angle
     diff_angle = int(diff_angle)
@@ -227,8 +227,8 @@ def serial_connect(os_type):
         port_addr = "/dev/ttyACM0"
         os.system("sudo chmod 777 /dev/ttyACM0")
         # os.system("rm -rf debug_autolog.csv")
-        os.system("rm -rf driving_log_all.csv")
-        os.system("rm -rf driving_log_keyboard.csv")
+        # os.system("rm -rf driving_log_all.csv")
+        # os.system("rm -rf driving_log_keyboard.csv")
         # os.system("rm -rf data")
     elif os_type == 'MAC': # MAC OS
         port_addr = "/dev/tty.usbmodem21403"

@@ -122,7 +122,7 @@ def preprocess_PilotNetimg(image_array):
 def postprocess_PilotNet(self, image_tensor, cur_angle):
     prev_angle = cur_angle # 저장용
     steering_angle = self.model(image_tensor).view(-1).data.numpy()[0] #angle
-    print('steering : ',steering_angle)
+    # print('steering : ',steering_angle)
     steering_angle = steering_angle * 20 # 핸들이 돌아갈 수 있는 정도 : 차량 바퀴가 돌아가는 정도 = 20
     model_output = steering_angle # 저장용
     diff_angle = steering_angle - cur_angle
@@ -203,47 +203,50 @@ def PB_top(juno_x, margin):
     juno_z = -0.034 * juno_x + 8.035 - margin
     return juno_z
 
-def localization(juno_x, juno_z, out_cnt):
-    # print("x : ", juno_x, "\nz : " , juno_z)
-    # print()
-    margin = 0.05
-    support_margin = 0.1
-    area = ""
+
+def localization(juno_x, juno_z, out_cnt, area):
+    print("x : ", juno_x, "\nz : " , juno_z)
+    print()
+    margin = 0.01
+    support_margin = 0.05
+    
     if ((juno_z > HDNH_left(juno_x, margin)) and (juno_z > HDNH_right(juno_x, margin)) and (juno_z < HDGR_top(juno_x, margin))):
         out_cnt = 0
         area = "HDNH"
-        # print("between HD and NH")
+        print("between HD and NH")
     elif ((juno_z < HDGR_top(juno_x, margin)) and (juno_z > HDGR_bottom(juno_x, margin)) and (juno_z < ATGR_right(juno_x, margin))):
         out_cnt = 0
         area = "HDGR"
-        # print("between HD and grass")
+        print("between HD and grass")
     elif ((juno_z < ATGR_left(juno_x, margin)) and (juno_z >ATGR_right(juno_x, margin) ) and (juno_z < PB_top(juno_x, margin))) :
         out_cnt = 0
         area = "ATGR"
-        # print("between ATM and grass")
+        print("between ATM and grass")
     elif ((juno_z <PB_top(juno_x, margin)) and (juno_z > PB_bottom(juno_x, margin)) and (juno_x  > - 10.559)):
         out_cnt = 0
         area = "PB"
-        # print("infront of PyeongBong")
-    else : 
-        if ( area == "HDNH" ) and ( juno_z < HDNH_left(juno_x, support_margin) )  :
-            print("send d = 오른쪽으로 가.")
-        elif  ( area == "HDNH" ) and ( juno_z < HDNH_right(juno_x, support_margin) )  :
-            print("send a = 왼쪽으로 가")
-        elif ( area == "HDGR") and ( juno_z > HDGR_top(juno_x, support_margin) ) :
-            print("send a = 왼쪽으로 가")
-        elif ( area == "HDGR") and ( juno_z < HDGR_bottom(juno_x, support_margin) ) :
-            print("send d = 오른쪽으로 가.")
-        elif ( area == "ATGR") and ( juno_z > ATGR_left(juno_x, support_margin) ):
-            print("send d = 오른쪽으로 가.")
-        elif ( area == "ATGR") and ( juno_z < ATGR_right(juno_x, support_margin) ):
-            print("send a = 왼쪽으로 가")
-        elif ( area == "PB") and ( juno_z < PB_top(juno_x, support_margin) ):
-            print("send a = 왼쪽으로 가")
-        elif ( area == "PB") and ( juno_z < PB_bottom(juno_x, support_margin) ):
-            print("send d = 오른쪽으로 가.")
-             
+        print("infront of PyeongBong")
+    else :      
         out_cnt = out_cnt + 1
+    
+    print("area = " ,area)
+    if ( area == "HDNH" ) and ( juno_z < HDNH_left(juno_x, support_margin) )  :
+        print("send d = 오른쪽으로 가.")
+    elif  ( area == "HDNH" ) and ( juno_z < HDNH_right(juno_x, support_margin) )  :
+        print("send a = 왼쪽으로 가")
+    elif ( area == "HDGR") and ( juno_z > HDGR_top(juno_x, support_margin) ) :
+        print("send a = 왼쪽으로 가")
+    elif ( area == "HDGR") and ( juno_z < HDGR_bottom(juno_x, support_margin) ) :
+        print("send d = 오른쪽으로 가.")
+    elif ( area == "ATGR") and ( juno_z > ATGR_left(juno_x, support_margin) ):
+        print("send d = 오른쪽으로 가.")
+    elif ( area == "ATGR") and ( juno_z < ATGR_right(juno_x, support_margin) ):
+        print("send a = 왼쪽으로 가")
+    elif ( area == "PB") and ( juno_z < PB_top(juno_x, support_margin) ):
+        print("send a = 왼쪽으로 가")
+    elif ( area == "PB") and ( juno_z < PB_bottom(juno_x, support_margin) ):
+        print("send d = 오른쪽으로 가.")
+
     return out_cnt
 
 def serial_connect(os_type):

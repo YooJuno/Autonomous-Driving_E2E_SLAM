@@ -21,10 +21,10 @@ import client_func as capstone
 
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
+area = "OutofBoundary"
 
-
-#FLAG_SERIAL = 'DISCONNECTED'
-FLAG_SERIAL = 'CONNECTED'
+FLAG_SERIAL = 'DISCONNECTED'
+# FLAG_SERIAL = 'CONNECTED'
 
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
@@ -97,7 +97,7 @@ class ImageThread(threading.Thread):
         csv_angle = 0
         
         while True:
-            print(driving_type)
+            # print(driving_type)
             ret, frame = cap.read()
             key = cv2.waitKey(1)  
             cnt = cnt + 1
@@ -198,7 +198,8 @@ class StringThread(threading.Thread):
             lock.release()
             
             #냬 위치 파악
-            out_cnt = capstone.localization(juno_x, juno_z, out_cnt)
+            
+            out_cnt = capstone.localization(juno_x, juno_z, out_cnt, area)
             # #_맵없이 할떄 임시로 지워둠.
             # # 좌표가 순간적으로 튀는 것을 방지하기 위해
             # if out_cnt > 10:

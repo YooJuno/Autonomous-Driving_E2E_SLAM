@@ -245,7 +245,7 @@ def localization(juno_x, juno_z, out_cnt, area):
     elif ( area == "PB") and ( juno_z < PB_top(juno_x, support_margin) ):
         print("send a = 왼쪽으로 가")
     elif ( area == "PB") and ( juno_z < PB_bottom(juno_x, support_margin) ):
-        print("send d = 오른쪽으로 가.")
+        print("send d = 오른쪽으로 가. ")
 
     return out_cnt
 

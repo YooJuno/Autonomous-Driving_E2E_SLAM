@@ -2,7 +2,7 @@
 
 
 # System.SaveAtlasToFile: "test1"
-System.LoadAtlasFromFile: "hope_2_0502test1"
+System.LoadAtlasFromFile: "NTH2"
 
 
 
@@ -42,13 +42,13 @@ Camera.width: 1024
 Camera.height: 768
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 1250 # Tested with 1250
+ORBextractor.nFeatures: 3000 # Tested with 1250
  
  
 # Camera frames per second 
 Camera.fps: 30 
 
-ORBextractor.iniThFAST: 60
+ORBextractor.iniThFAST: 90
 ORBextractor.minThFAST: 30
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)

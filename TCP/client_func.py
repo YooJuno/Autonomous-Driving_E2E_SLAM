@@ -244,8 +244,8 @@ def bridge_6(juno_x, margin):
 def localization(juno_x, juno_z, out_cnt, area):
     print("x : ", juno_x, "\nz : " , juno_z)
     print()
-    margin = 0.01
-    support_margin = 0.05
+    margin = 0.00
+    support_margin = 0.01
     
     if ((juno_z > left_1(juno_x, margin)) and (juno_z < right_1(juno_x, margin)) and (juno_z < bridge_2(juno_x, margin))):
         out_cnt = 0
@@ -277,9 +277,9 @@ def localization(juno_x, juno_z, out_cnt, area):
         print("send a = 왼쪽으로 가")
 
     elif ( area == "area2") and ( juno_z < left_2(juno_x, support_margin) ) :
-        print("send a = 왼쪽으로 가")
-    elif ( area == "area2") and ( juno_z > right_2(juno_x, support_margin) ) :
         print("send d = 오른쪽으로 가.")
+    elif ( area == "area2") and ( juno_z > right_2(juno_x, support_margin) ) :
+        print("send a = 왼쪽으로 가")
         
     elif ( area == "area3") and ( juno_z < left_3(juno_x, support_margin) ):
         print("send d = 오른쪽으로 가.")
@@ -287,14 +287,14 @@ def localization(juno_x, juno_z, out_cnt, area):
         print("send a = 왼쪽으로 가")
 
     elif ( area == "area4") and ( juno_z < left_4(juno_x, support_margin) ):
-        print("send a = 왼쪽으로 가")
-    elif ( area == "area4") and ( juno_z > right_4(juno_x, support_margin) ):
         print("send d = 오른쪽으로 가. ")
+    elif ( area == "area4") and ( juno_z > right_4(juno_x, support_margin) ):
+        print("send a = 왼쪽으로 가")
 
     elif ( area == "area5") and ( juno_z < left_5(juno_x, support_margin) ):
-        print("send a = 왼쪽으로 가")
-    elif ( area == "area5") and ( juno_z > right_5(juno_x, support_margin) ):
         print("send d = 오른쪽으로 가. ")
+    elif ( area == "area5") and ( juno_z > right_5(juno_x, support_margin) ):
+        print("send a = 왼쪽으로 가")
     return out_cnt
 
 def serial_connect(os_type):

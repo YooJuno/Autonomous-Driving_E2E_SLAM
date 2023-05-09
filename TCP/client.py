@@ -49,6 +49,8 @@ frame_yolo = 0
 detect_sign = 0
 prev_detect = 0
 
+# tmp =0
+
 
 # STM32F411RE 연결할지 말지
 if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
@@ -105,15 +107,23 @@ class ImageThread(threading.Thread):
                 print("Failed to capture frame.")
                 break
             
-            #YOLO
+            # #YOLO
             # if driving_type == 'AUTO' :
             #     if cnt % 10 == 0:
             #         juno_person = capstone.detect(frame)    
-            #         if juno_person == 1:
+            #         if juno_person == 1 and tmp == 0:
             #             ser.write(b'x') 
+            #             tmp = tmp +1 
+            #             print('====================')
+            #             print("tmp : ", tmp)
+            #             print('====================')
             #         elif juno_person == 0 and prev_person == 1:
+            #             print('====================')
             #             print("go again!!")
+            #             tmp = 0
             #             ser.write(b'w')
+
+            #             print('====================')
             #         prev_person = juno_person
 
             #KEY preprocessing
@@ -164,7 +174,7 @@ class ImageThread(threading.Thread):
                     capstone.save_drivinglog(self, 'driving_log_all.csv',csv_angle)
                         
             if OS_TYPE == 'UBUNTU':
-                cv2.imshow("autodrive_crop", crop_img)
+                cv2.imshow("cropautodrive_crop", crop_img)
 
         if DRIVE_WITH_SLAM_TYPE == 'WITH':
             # 연결 종료

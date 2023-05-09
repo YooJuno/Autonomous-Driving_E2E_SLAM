@@ -106,8 +106,8 @@ def send_img_toSLAM(self, frame):
 def PilotNet_crop_img(frame):
     frame = frame.resize((320,160))
     image_array = np.array(frame.copy())
-    # image_array = image_array[40:-50, :]
-    image_array = image_array[65:-25, :] # 예전 코드
+    image_array = image_array[40:-50, :]
+    # image_array = image_array[65:-25, :] # 예전 코드
     crop_img = image_array.copy()
     return image_array, crop_img
     

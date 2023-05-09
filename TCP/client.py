@@ -48,7 +48,7 @@ interval = 10
 frame_yolo = 0 
 detect_sign = 0
 prev_detect = 0
-
+cur_angle=0
 
 # STM32F411RE 연결할지 말지
 if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
@@ -74,6 +74,7 @@ class ImageThread(threading.Thread):
         global Boundary # 쓰레드 공유변수
         global driving_type
         global frame
+        global cur_angle
 
         cap = cv2.VideoCapture(camera_num)    
         # cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
@@ -106,6 +107,7 @@ class ImageThread(threading.Thread):
                 break
             
             #YOLO
+
             if driving_type == 'AUTO' :
                 if cnt % 10 == 0:
                     juno_person = capstone.detect(frame)    
@@ -144,7 +146,9 @@ class ImageThread(threading.Thread):
                 
                 # 예측 조향값 차량 제어
                 if FLAG_SERIAL == 'CONNECTED':
+                    
                     csv_angle = capstone.auto_control_car(ser, diff_angle, csv_angle)
+                    
                 
                 # driving log 저장
                 capstone.save_drivinglog(self, 'driving_log_all.csv',csv_angle)
@@ -181,6 +185,7 @@ class StringThread(threading.Thread):
         
         global Boundary # 쓰레드 공유변수
         global driving_type
+        global cur_angle
         # main.
         out_cnt = 0
         while True:
@@ -199,18 +204,31 @@ class StringThread(threading.Thread):
             
             #냬 위치 파악
             
-            out_cnt = capstone.localization(juno_x, juno_z, out_cnt, area)
+            out_cnt, flag_direction = capstone.localization(ser, juno_x, juno_z, out_cnt, area)
             # #_맵없이 할떄 임시로 지워둠.
             # # 좌표가 순간적으로 튀는 것을 방지하기 위해
-            if out_cnt > 10:
+            if out_cnt > 0:
                 lock.acquire()
                 Boundary = 'OUT OF BOUNDARY'
+                cur_angle = 0
+                
                 lock.release()
                 print(Boundary)
             # 나갔으면
-            if FLAG_SERIAL== 'CONNECTED' and Boundary == 'OUT OF BOUNDARY' and driving_type == 'AUTO':
-                ser.write(b's')
-                driving_type = 'MANUAL'
+            if FLAG_SERIAL== 'CONNECTED' and driving_type == 'AUTO':
+
+                if Boundary == 'OUT OF BOUNDARY':
+                    # if out_cnt > 10 :
+                    #     ser.write(b's')
+                    #     driving_type = 'MANUAL'
+                    # else:    
+                    if flag_direction == 'turn right':
+                        ser.write('d')
+                        
+                    elif flag_direction == 'turn right':
+                        ser.write('d')
+                    
+                
 
         # 연결 종료
         self.conn.close()

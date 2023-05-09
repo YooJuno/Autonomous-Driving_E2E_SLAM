@@ -131,7 +131,6 @@ def postprocess_PilotNet(self, image_tensor, cur_angle):
     return diff_angle, cur_angle, prev_angle, model_output, diff_angle
 
 def auto_control_car(ser, diff_angle, csv_angle) :
-    #  if flag_boundary == 'IN':   
     if diff_angle > 0: #angle이 오른쪽으로 꺽여야함
         for i in range(diff_angle) :
             tmp = ser.write(b'd')
@@ -145,8 +144,6 @@ def auto_control_car(ser, diff_angle, csv_angle) :
             csv_angle -= 0.25
             if csv_angle <= -1 :
                 csv_angle = -1
-    # elif flag_boundary == 'LEFT':
-    # elif flag_boundary == 'RIGHT':
 
     return csv_angle
 
@@ -176,7 +173,7 @@ def keyboard_control_car(ser, key, csv_angle):
 
 
 def left_1(juno_x, margin):
-    juno_z = -7.273 * (juno_x - margin)  -0.080
+    juno_z = -7.273 * (juno_x - margin + 0.05)  -0.080
     return juno_z
 
 def left_2(juno_x, margin):
@@ -196,7 +193,7 @@ def left_5(juno_x, margin):
     return juno_z
 
 def right_1(juno_x, margin):
-    juno_z = -26.857 * (juno_x + margin)  + 0.618
+    juno_z = -26.857 * (juno_x + margin - 0.05)  + 0.618
     return juno_z
 
 def right_2(juno_x, margin):
@@ -241,11 +238,12 @@ def bridge_6(juno_x, margin):
 
 
 
-def localization(juno_x, juno_z, out_cnt, area):
+def localization(ser, juno_x, juno_z, out_cnt, area):
     print("x : ", juno_x, "\nz : " , juno_z)
     print()
     margin = 0.00
     support_margin = 0.01
+    direction = ''
     
     if ((juno_z > left_1(juno_x, margin)) and (juno_z < right_1(juno_x, margin)) and (juno_z < bridge_2(juno_x, margin))):
         out_cnt = 0
@@ -273,29 +271,46 @@ def localization(juno_x, juno_z, out_cnt, area):
     print("area = " ,area)
     if ( area == "area1" ) and ( juno_z < left_1(juno_x, support_margin) )  :
         print("send d = 오른쪽으로 가.")
+        direction = 'turn right'
+        
     elif  ( area == "area1" ) and ( juno_z > right_1(juno_x, support_margin) )  :
         print("send a = 왼쪽으로 가")
+        direction = 'turn left'
 
     elif ( area == "area2") and ( juno_z < left_2(juno_x, support_margin) ) :
         print("send d = 오른쪽으로 가.")
+        direction = 'turn right'
+        
     elif ( area == "area2") and ( juno_z > right_2(juno_x, support_margin) ) :
         print("send a = 왼쪽으로 가")
-        
+        direction = 'turn left'
+
     elif ( area == "area3") and ( juno_z < left_3(juno_x, support_margin) ):
         print("send d = 오른쪽으로 가.")
+        direction = 'turn right'
+
     elif ( area == "area3") and ( juno_z > right_3(juno_x, support_margin) ):
         print("send a = 왼쪽으로 가")
+        direction = 'turn left'
+        
 
     elif ( area == "area4") and ( juno_z < left_4(juno_x, support_margin) ):
         print("send d = 오른쪽으로 가. ")
+        direction = 'turn right'
+
     elif ( area == "area4") and ( juno_z > right_4(juno_x, support_margin) ):
         print("send a = 왼쪽으로 가")
+        direction = 'turn left'
+        
 
-    elif ( area == "area5") and ( juno_z < left_5(juno_x, support_margin) ):
-        print("send d = 오른쪽으로 가. ")
-    elif ( area == "area5") and ( juno_z > right_5(juno_x, support_margin) ):
-        print("send a = 왼쪽으로 가")
-    return out_cnt
+    # elif ( area == "area5") and ( juno_z < left_5(juno_x, support_margin) ):
+    #     print("send d = 오른쪽으로 가. ")
+    #     ser.write(b'd')
+    # elif ( area == "area5") and ( juno_z > right_5(juno_x, support_margin) ):
+    #     print("send a = 왼쪽으로 가")
+    #     ser.write(b'a')
+
+    return out_cnt, direction
 
 def serial_connect(os_type):
     if os_type == 'UBUNTU': # UBUNTU

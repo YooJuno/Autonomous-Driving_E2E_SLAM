@@ -49,9 +49,6 @@ frame_yolo = 0
 detect_sign = 0
 prev_detect = 0
 
-# tmp =0
-
-
 # STM32F411RE 연결할지 말지
 if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
     ser = capstone.serial_connect(OS_TYPE)
@@ -76,6 +73,7 @@ class ImageThread(threading.Thread):
         global Boundary # 쓰레드 공유변수
         global driving_type
         global frame
+        # global speed
 
         cap = cv2.VideoCapture(camera_num)    
         # cap = cv2.VideoCapture('/home/yoojunho/바탕화면/v1.mp4')
@@ -97,6 +95,7 @@ class ImageThread(threading.Thread):
         cnt = 0
         cur_angle = 0
         csv_angle = 0
+        speed = 1
         
         while True:
             print(driving_type)
@@ -108,23 +107,20 @@ class ImageThread(threading.Thread):
                 break
             
             # #YOLO
-            # if driving_type == 'AUTO' :
-            #     if cnt % 10 == 0:
-            #         juno_person = capstone.detect(frame)    
-            #         if juno_person == 1 and tmp == 0:
-            #             ser.write(b'x') 
-            #             tmp = tmp +1 
-            #             print('====================')
-            #             print("tmp : ", tmp)
-            #             print('====================')
-            #         elif juno_person == 0 and prev_person == 1:
-            #             print('====================')
-            #             print("go again!!")
-            #             tmp = 0
-            #             ser.write(b'w')
+            if driving_type == 'AUTO' :
+                # if cnt % 10 == 0:
+                juno_person = capstone.detect(frame)    
+                if juno_person == 1 and speed > 0:
+                    ser.write(b'x')
+                    speed-=1
+                elif juno_person == 0 and prev_person == 1:
+                    print('====================')
+                    print("go again!!")
+                    ser.write(b'w')
+                    speed=1
 
-            #             print('====================')
-            #         prev_person = juno_person
+                    print('====================')
+                prev_person = juno_person
 
             #KEY preprocessing
             if (97 <= key <= 122) or (65 <= key <= 90):

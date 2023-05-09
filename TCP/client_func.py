@@ -170,55 +170,79 @@ def keyboard_control_car(ser, key, csv_angle):
         ser.write(b'x')
     return csv_angle
 
-margin = 0.05
-def HDNH_left(juno_x):
+
+def HDNH_left(juno_x, margin):
     juno_z = -28.149 * (juno_x - margin)  + 61.224
     return juno_z
 
-def HDNH_right(juno_x):
+def HDNH_right(juno_x, margin):
     juno_z = 488.375 * (juno_x + margin) - 1300.316
     return juno_z
 
-def HDGR_top(juno_x):
+def HDGR_top(juno_x, margin):
     juno_z = -0.027 * juno_x + 3.716 - margin
     return juno_z
 
-def HDGR_bottom(juno_x):
+def HDGR_bottom(juno_x, margin):
     juno_z = -0.029 * juno_x + 3.186 + margin
     return juno_z
 
-def ATGR_left(juno_x):
+def ATGR_left(juno_x, margin):
     juno_z = 19.543 * (juno_x - margin) + 169.985
     return juno_z
 
-def ATGR_right(juno_x):
+def ATGR_right(juno_x, margin):
     juno_z = 87.46 * (juno_x + margin) + 705.359
     return juno_z
 
-def PB_bottom(juno_x):
+def PB_bottom(juno_x, margin):
     juno_z = 0.023 * juno_x + 8.223 + margin
     return juno_z
 
-def PB_top(juno_x):
+def PB_top(juno_x, margin):
     juno_z = -0.034 * juno_x + 8.035 - margin
     return juno_z
 
 def localization(juno_x, juno_z, out_cnt):
     # print("x : ", juno_x, "\nz : " , juno_z)
     # print()
-    if ((juno_z > HDNH_left(juno_x)) and (juno_z > HDNH_right(juno_x)) and (juno_z < HDGR_top(juno_x))):
+    margin = 0.05
+    support_margin = 0.1
+    area = ""
+    if ((juno_z > HDNH_left(juno_x, margin)) and (juno_z > HDNH_right(juno_x, margin)) and (juno_z < HDGR_top(juno_x, margin))):
         out_cnt = 0
+        area = "HDNH"
         # print("between HD and NH")
-    elif ((juno_z < HDGR_top(juno_x)) and (juno_z > HDGR_bottom(juno_x)) and (juno_z < ATGR_right(juno_x))):
+    elif ((juno_z < HDGR_top(juno_x, margin)) and (juno_z > HDGR_bottom(juno_x, margin)) and (juno_z < ATGR_right(juno_x, margin))):
         out_cnt = 0
+        area = "HDGR"
         # print("between HD and grass")
-    elif ((juno_z < ATGR_left(juno_x)) and (juno_z >ATGR_right(juno_x) ) and (juno_z < PB_top(juno_x))) :
+    elif ((juno_z < ATGR_left(juno_x, margin)) and (juno_z >ATGR_right(juno_x, margin) ) and (juno_z < PB_top(juno_x, margin))) :
         out_cnt = 0
+        area = "ATGR"
         # print("between ATM and grass")
-    elif ((juno_z <PB_top(juno_x)) and (juno_z > PB_bottom(juno_x)) and (juno_x  > - 10.559)):
+    elif ((juno_z <PB_top(juno_x, margin)) and (juno_z > PB_bottom(juno_x, margin)) and (juno_x  > - 10.559)):
         out_cnt = 0
+        area = "PB"
         # print("infront of PyeongBong")
     else : 
+        if ( area == "HDNH" ) and ( juno_z < HDNH_left(juno_x, support_margin) )  :
+            print("send d = 오른쪽으로 가.")
+        elif  ( area == "HDNH" ) and ( juno_z < HDNH_right(juno_x, support_margin) )  :
+            print("send a = 왼쪽으로 가")
+        elif ( area == "HDGR") and ( juno_z > HDGR_top(juno_x, support_margin) ) :
+            print("send a = 왼쪽으로 가")
+        elif ( area == "HDGR") and ( juno_z < HDGR_bottom(juno_x, support_margin) ) :
+            print("send d = 오른쪽으로 가.")
+        elif ( area == "ATGR") and ( juno_z > ATGR_left(juno_x, support_margin) ):
+            print("send d = 오른쪽으로 가.")
+        elif ( area == "ATGR") and ( juno_z < ATGR_right(juno_x, support_margin) ):
+            print("send a = 왼쪽으로 가")
+        elif ( area == "PB") and ( juno_z < PB_top(juno_x, support_margin) ):
+            print("send a = 왼쪽으로 가")
+        elif ( area == "PB") and ( juno_z < PB_bottom(juno_x, support_margin) ):
+            print("send d = 오른쪽으로 가.")
+             
         out_cnt = out_cnt + 1
     return out_cnt
 

@@ -106,8 +106,8 @@ def send_img_toSLAM(self, frame):
 def PilotNet_crop_img(frame):
     frame = frame.resize((320,160))
     image_array = np.array(frame.copy())
-    image_array = image_array[40:-50, :]
-    # image_array = image_array[65:-25, :] # 예전 코드
+    # image_array = image_array[40:-50, :]
+    image_array = image_array[65:-25, :] # 예전 코드
     crop_img = image_array.copy()
     return image_array, crop_img
     
@@ -122,8 +122,8 @@ def preprocess_PilotNetimg(image_array):
 def postprocess_PilotNet(self, image_tensor, cur_angle):
     prev_angle = cur_angle # 저장용
     steering_angle = self.model(image_tensor).view(-1).data.numpy()[0] #angle
-    print('steering : ',steering_angle)
-    steering_angle = steering_angle * 30 # 핸들이 돌아갈 수 있는 정도 : 차량 바퀴가 돌아가는 정도 = 20
+    # print('steering : ',steering_angle)
+    steering_angle = steering_angle * 20 # 핸들이 돌아갈 수 있는 정도 : 차량 바퀴가 돌아가는 정도 = 20
     model_output = steering_angle # 저장용
     diff_angle = steering_angle - cur_angle
     diff_angle = int(diff_angle)
@@ -144,6 +144,7 @@ def auto_control_car(ser, diff_angle, csv_angle) :
             csv_angle -= 0.25
             if csv_angle <= -1 :
                 csv_angle = -1
+
     return csv_angle
 
 def keyboard_control_car(ser, key, csv_angle):
@@ -170,65 +171,160 @@ def keyboard_control_car(ser, key, csv_angle):
         ser.write(b'x')
     return csv_angle
 
-margin = 0.05
-def HDNH_left(juno_x):
-    juno_z = -28.149 * (juno_x - margin)  + 61.224
+
+def left_1(juno_x, margin):
+    juno_z = -7.273 * (juno_x - margin + 0.05)  -0.080
     return juno_z
 
-def HDNH_right(juno_x):
-    juno_z = 488.375 * (juno_x + margin) - 1300.316
+def left_2(juno_x, margin):
+    juno_z = -0.926 * (juno_x - margin)  + 0.143
     return juno_z
 
-def HDGR_top(juno_x):
-    juno_z = -0.027 * juno_x + 3.716 - margin
+def left_3(juno_x, margin):
+    juno_z = -0.068 * (juno_x)  + 0.346 + margin
     return juno_z
 
-def HDGR_bottom(juno_x):
-    juno_z = -0.029 * juno_x + 3.186 + margin
+def left_4(juno_x, margin):
+    juno_z = 0.605 * (juno_x)  + 0.653 + margin
     return juno_z
 
-def ATGR_left(juno_x):
-    juno_z = 19.543 * (juno_x - margin) + 169.985
+def left_5(juno_x, margin):
+    juno_z = 0.111 * (juno_x)  + 0.319 + margin
     return juno_z
 
-def ATGR_right(juno_x):
-    juno_z = 87.46 * (juno_x + margin) + 705.359
+def right_1(juno_x, margin):
+    juno_z = -26.857 * (juno_x + margin - 0.05)  + 0.618
     return juno_z
 
-def PB_bottom(juno_x):
-    juno_z = 0.023 * juno_x + 8.223 + margin
+def right_2(juno_x, margin):
+    juno_z = -1.139 * (juno_x + margin)  + 0.232
     return juno_z
 
-def PB_top(juno_x):
-    juno_z = -0.034 * juno_x + 8.035 - margin
+def right_3(juno_x, margin):
+    juno_z = 0.072 * (juno_x)  + 0.484 - margin
     return juno_z
 
-def localization(juno_x, juno_z, out_cnt):
-    # print("x : ", juno_x, "\nz : " , juno_z)
-    # print()
-    if ((juno_z > HDNH_left(juno_x)) and (juno_z > HDNH_right(juno_x)) and (juno_z < HDGR_top(juno_x))):
+def right_4(juno_x, margin):
+    juno_z = 0.759 * (juno_x)  + 0.799 - margin
+    return juno_z
+
+def right_5(juno_x, margin):
+    juno_z = 0.040 * (juno_x)  + 0.305 - margin
+    return juno_z
+
+def bridge_1(juno_x, margin):
+    juno_z = 0.343 * (juno_x - margin)  + 0.019
+    return juno_z
+
+def bridge_2(juno_x, margin):
+    juno_z = 0.800 * (juno_x - margin)  + 0.203
+    return juno_z
+
+def bridge_3(juno_x, margin):
+    juno_z = 3.690 * (juno_x - margin)  + 1.236
+    return juno_z
+
+def bridge_4(juno_x, margin):
+    juno_z = -24.667 * (juno_x - margin)  -10.871
+    return juno_z
+
+def bridge_5(juno_x, margin):
+    juno_z = -3.091 * (juno_x - margin)  -1.845
+    return juno_z
+
+def bridge_6(juno_x, margin):
+    juno_z = -4.300 * (juno_x - margin)  -3.219
+    return juno_z
+
+
+
+def localization(ser, juno_x, juno_z, out_cnt, area):
+    print("x : ", juno_x, "\nz : " , juno_z)
+    print()
+    margin = 0.00
+    support_margin = 0.01
+    direction = ''
+    
+    if ((juno_z > left_1(juno_x, margin)) and (juno_z < right_1(juno_x, margin)) and (juno_z < bridge_2(juno_x, margin))):
         out_cnt = 0
-        # print("between HD and NH")
-    elif ((juno_z < HDGR_top(juno_x)) and (juno_z > HDGR_bottom(juno_x)) and (juno_z < ATGR_right(juno_x))):
+        area = "area1"
+        print("area1")
+    elif ((juno_z > left_2(juno_x, margin)) and (juno_z < right_2(juno_x, margin)) and (juno_z < bridge_3(juno_x, margin))):
         out_cnt = 0
-        # print("between HD and grass")
-    elif ((juno_z < ATGR_left(juno_x)) and (juno_z >ATGR_right(juno_x) ) and (juno_z < PB_top(juno_x))) :
+        area = "area2"
+        print("area2")
+    elif ((juno_z > left_3(juno_x, margin)) and (juno_z < right_3(juno_x, margin) ) and (juno_z > bridge_4(juno_x, margin))) :
         out_cnt = 0
-        # print("between ATM and grass")
-    elif ((juno_z <PB_top(juno_x)) and (juno_z > PB_bottom(juno_x)) and (juno_x  > - 10.559)):
+        area = "area3"
+        print("area3")
+    elif ((juno_z > left_4(juno_x, margin)) and (juno_z < right_4(juno_x, margin)) and (juno_z > bridge_5(juno_x, margin))):
         out_cnt = 0
-        # print("infront of PyeongBong")
-    else : 
+        area = "area4"
+        print("area4")
+    elif ((juno_z > left_5(juno_x, margin)) and (juno_z < right_5(juno_x, margin)) and (juno_z > bridge_6(juno_x, margin))):
+        out_cnt = 0
+        area = "area5"
+        print("area5")
+    else :      
         out_cnt = out_cnt + 1
-    return out_cnt
+    
+    print("area = " ,area)
+    if ( area == "area1" ) and ( juno_z < left_1(juno_x, support_margin) )  :
+        print("send d = 오른쪽으로 가.")
+        direction = 'turn right'
+        ser.write(b'd')
+        
+    elif  ( area == "area1" ) and ( juno_z > right_1(juno_x, support_margin) )  :
+        print("send a = 왼쪽으로 가")
+        direction = 'turn left'
+        ser.write(b'a')
+
+    elif ( area == "area2") and ( juno_z < left_2(juno_x, support_margin) ) :
+        print("send d = 오른쪽으로 가.")
+        direction = 'turn right'
+        ser.write(b'd')
+        
+    elif ( area == "area2") and ( juno_z > right_2(juno_x, support_margin) ) :
+        print("send a = 왼쪽으로 가")
+        direction = 'turn left'
+        ser.write(b'a')
+
+    elif ( area == "area3") and ( juno_z < left_3(juno_x, support_margin) ):
+        print("send d = 오른쪽으로 가.")
+        direction = 'turn right'
+        ser.write(b'd')
+
+    elif ( area == "area3") and ( juno_z > right_3(juno_x, support_margin) ):
+        print("send a = 왼쪽으로 가")
+        direction = 'turn left'
+        ser.write(b'a')
+
+    elif ( area == "area4") and ( juno_z < left_4(juno_x, support_margin) ):
+        print("send d = 오른쪽으로 가. ")
+        direction = 'turn right'
+        ser.write(b'd')
+
+    elif ( area == "area4") and ( juno_z > right_4(juno_x, support_margin) ):
+        print("send a = 왼쪽으로 가")
+        direction = 'turn left'
+        ser.write(b'a')
+
+    # elif ( area == "area5") and ( juno_z < left_5(juno_x, support_margin) ):
+    #     print("send d = 오른쪽으로 가. ")
+    #     ser.write(b'd')
+    # elif ( area == "area5") and ( juno_z > right_5(juno_x, support_margin) ):
+    #     print("send a = 왼쪽으로 가")
+    #     ser.write(b'a')
+
+    return out_cnt, direction
 
 def serial_connect(os_type):
     if os_type == 'UBUNTU': # UBUNTU
         port_addr = "/dev/ttyACM0"
         os.system("sudo chmod 777 /dev/ttyACM0")
         # os.system("rm -rf debug_autolog.csv")
-        # os.system("rm -rf driving_log_all.csv")
-        # os.system("rm -rf driving_log_keyboard.csv")
+        os.system("rm -rf driving_log_all.csv")
+        os.system("rm -rf driving_log_keyboard.csv")
         # os.system("rm -rf data")
     elif os_type == 'MAC': # MAC OS
         port_addr = "/dev/tty.usbmodem21403"

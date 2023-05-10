@@ -149,7 +149,7 @@ class ImageThread(threading.Thread):
                 diff_angle, cur_angle, prev_angle, model_ouput, diff_angle = capstone.postprocess_PilotNet(self, image_tensor, cur_angle)
                 
                 # 예측 조향값 차량 제어
-                if FLAG_SERIAL == 'CONNECTED':
+                if FLAG_SERIAL == 'CONNECTED' and Boundary == 'IN BOUNDARY':
                     csv_angle = capstone.auto_control_car(ser, diff_angle, csv_angle)
                 
                 # driving log 저장
@@ -205,17 +205,17 @@ class StringThread(threading.Thread):
             
             #냬 위치 파악
             out_cnt = capstone.localization(juno_x, juno_z, out_cnt)
-            # #_맵없이 할떄 임시로 지워둠.
-            # # 좌표가 순간적으로 튀는 것을 방지하기 위해
-            # if out_cnt > 10:
-            #     lock.acquire()
-            #     Boundary = 'OUT OF BOUNDARY'
-            #     lock.release()
-            #     print(Boundary)
-            # # 나갔으면
-            # if FLAG_SERIAL== 'CONNECTED' and Boundary == 'OUT OF BOUNDARY' and driving_type == 'AUTO':
-            #     ser.write(b's')
-            #     driving_type = 'MANUAL'
+            #_맵없이 할떄 임시로 지워둠.
+            # 좌표가 순간적으로 튀는 것을 방지하기 위해s
+            if out_cnt > 10:
+                lock.acquire()
+                Boundary = 'OUT OF BOUNDARY'
+                lock.release()
+                print(Boundary)
+            # 나갔으면
+            if FLAG_SERIAL== 'CONNECTED' and Boundary == 'OUT OF BOUNDARY' and driving_type == 'AUTO':
+                ser.write(b's')
+                driving_type = 'MANUAL'
 
         # 연결 종료
         self.conn.close()

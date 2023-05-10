@@ -231,10 +231,10 @@ def bridge_5(juno_x, margin):
 
 
 def localization(juno_x, juno_z, out_cnt, area):
-    print("x : ", juno_x, "\nz : " , juno_z)
+    # print("x : ", juno_x, "\nz : " , juno_z)
     print()
     margin = 0.00
-    support_margin = 0.00
+    support_margin = 0.01
     direction = ''
     
     if ((juno_z > left_1(juno_x, margin)) and (juno_z < right_1(juno_x, margin)) and (juno_z < bridge_2(juno_x, margin))):

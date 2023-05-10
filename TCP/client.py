@@ -23,8 +23,8 @@ transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 area = ""
 
-FLAG_SERIAL = 'DISCONNECTED'
-# FLAG_SERIAL = 'CONNECTED'
+# FLAG_SERIAL = 'DISCONNECTED'
+FLAG_SERIAL = 'CONNECTED'
 
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
@@ -41,7 +41,7 @@ elif OS_TYPE == 'MAC':
     camera_num = 0
 
 # for multi thread
-Boundary = ''
+Boundary = 'IN BOUNDARY'
 lock = threading.Lock()
 sock = 0
 interval = 10
@@ -206,42 +206,53 @@ class StringThread(threading.Thread):
             out_cnt, flag_direction = capstone.localization( juno_x, juno_z, out_cnt, area)
             # #_맵없이 할떄 임시로 지워둠.
             # # 좌표가 순간적으로 튀는 것을 방지하기 위해
-            if out_cnt > 0 :
-                if Boundary == 'IN BOUNDARY':
-                    lock.acquire()
-                    Boundary = 'OUT OF BOUNDARY'
-                    # cur_angle = 0
-                    lock.release()
-            else:
-                if Boundary =='OUT OF BOUNDARY':
-                    lock.acquire()
-                    Boundary = 'IN BOUNDARY' # 범위 안에 있음
-                    lock.release()
+            # if out_cnt > 0 :
+            #     if Boundary == 'IN BOUNDARY':
+            #         lock.acquire()
+            #         Boundary = 'OUT OF BOUNDARY'
+            #         # cur_angle = 0
+            #         lock.release()
+            # else:
+            #     if Boundary =='OUT OF BOUNDARY':
+            #         lock.acquire()
+            #         Boundary = 'IN BOUNDARY' # 범위 안에 있음
+            #         lock.release()
 
-                
-                lock.release()
-            # 나갔으면
-            if FLAG_SERIAL== 'CONNECTED' and driving_type == 'AUTO':
+            # # 나갔으면
+            # if FLAG_SERIAL== 'CONNECTED' and driving_type == 'AUTO':
 
-                if Boundary == 'OUT OF BOUNDARY':
+                # if Boundary == 'OUT OF BOUNDARY':
                     # if out_cnt > 10 :
                     #     ser.write(b's')
                     #     driving_type = 'MANUAL'
                     # else:    
-                    if flag_direction == 'turn right':
-                        print('out_of_left')
-                        ser.write(b'd')
-                        ser.write(b'd')
-                        time.sleep(0.5)
-                        a = 0
-                        
-                    elif flag_direction == 'turn left':
-                        print('out_of_right')
-                        ser.write(b'a')
-                        ser.write(b'a')
-                        time.sleep(0.5)
-                    
-                        a = 0
+            if flag_direction == 'turn right':
+                lock.acquire()
+                Boundary = 'OUT OF BOUNDARY'
+                cur_angle = 0
+
+                print('out_of_left')
+                ser.write(b'd')
+                ser.write(b'd')
+                # time.sleep(0.5)
+                a = 0
+            
+            elif flag_direction == 'turn left':
+                lock.acquire()
+                Boundary = 'OUT OF BOUNDARY'
+                cur_angle = 0
+                
+                print('out_of_right')
+                ser.write(b'a')
+                ser.write(b'a')
+                # time.sleep(0.5)
+            else:
+                lock.acquire()
+                Boundary = 'IN BOUNDARY' # 범위 안에 있음
+                lock.release()
+
+            
+                a = 0
 
         # 연결 종료
         self.conn.close()

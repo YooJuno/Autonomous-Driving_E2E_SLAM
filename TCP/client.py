@@ -23,8 +23,8 @@ transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
 
-FLAG_SERIAL = 'DISCONNECTED'
-# FLAG_SERIAL = 'CONNECTED'
+# FLAG_SERIAL = 'DISCONNECTED'
+FLAG_SERIAL = 'CONNECTED'
 
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'
@@ -107,20 +107,20 @@ class ImageThread(threading.Thread):
                 break
             
             # #YOLO
-            if driving_type == 'AUTO' :
-                # if cnt % 10 == 0:
-                juno_person = capstone.detect(frame)    
-                if juno_person == 1 and speed > 0:
-                    ser.write(b'x')
-                    speed-=1
-                elif juno_person == 0 and prev_person == 1:
-                    print('====================')
-                    print("go again!!")
-                    ser.write(b'w')
-                    speed=1
+            # if driving_type == 'AUTO' :
+            #     # if cnt % 10 == 0:
+            #     juno_person = capstone.detect(frame)    
+            #     if juno_person == 1 and speed > 0:
+            #         ser.write(b'x')
+            #         speed-=1
+            #     elif juno_person == 0 and prev_person == 1:
+            #         print('====================')
+            #         print("go again!!")
+            #         ser.write(b'w')
+            #         speed=1
 
-                    print('====================')
-                prev_person = juno_person
+            #         print('====================')
+            #     prev_person = juno_person
 
             #KEY preprocessing
             if (97 <= key <= 122) or (65 <= key <= 90):

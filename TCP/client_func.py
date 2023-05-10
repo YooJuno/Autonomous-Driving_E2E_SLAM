@@ -106,8 +106,8 @@ def send_img_toSLAM(self, frame):
 def PilotNet_crop_img(frame):
     frame = frame.resize((320,160))
     image_array = np.array(frame.copy())
-    image_array = image_array[40:-50, :]
-    # image_array = image_array[65:-25, :] # 예전 코드
+    # image_array = image_array[40:-50, :]
+    image_array = image_array[65:-25, :] # 예전 코드
     crop_img = image_array.copy()
     return image_array, crop_img
     
@@ -123,7 +123,7 @@ def postprocess_PilotNet(self, image_tensor, cur_angle):
     prev_angle = cur_angle # 저장용
     steering_angle = self.model(image_tensor).view(-1).data.numpy()[0] #angle
     print('steering : ',steering_angle)
-    steering_angle = steering_angle * 30 # 핸들이 돌아갈 수 있는 정도 : 차량 바퀴가 돌아가는 정도 = 20
+    steering_angle = steering_angle * 20 # 핸들이 돌아갈 수 있는 정도 : 차량 바퀴가 돌아가는 정도 = 20
     model_output = steering_angle # 저장용
     diff_angle = steering_angle - cur_angle
     diff_angle = int(diff_angle)

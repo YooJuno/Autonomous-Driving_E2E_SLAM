@@ -210,7 +210,8 @@ class StringThread(threading.Thread):
                 if Boundary == 'IN BOUNDARY':
                     lock.acquire()
                     Boundary = 'OUT OF BOUNDARY'
-                    cur_angle = 0
+                    # cur_angle = 0
+                    lock.release()
             else:
                 if Boundary =='OUT OF BOUNDARY':
                     lock.acquire()

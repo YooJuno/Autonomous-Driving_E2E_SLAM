@@ -204,7 +204,7 @@ class StringThread(threading.Thread):
             lock.release()
             
             #냬 위치 파악
-            out_cnt = capstone.localization(juno_x, juno_z, out_cnt)
+            out_cnt = capstone.localization(ser, juno_x, juno_z, out_cnt)
             # #_맵없이 할떄 임시로 지워둠.
             # # 좌표가 순간적으로 튀는 것을 방지하기 위해
             # if out_cnt > 10:

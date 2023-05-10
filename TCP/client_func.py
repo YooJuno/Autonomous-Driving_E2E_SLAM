@@ -106,8 +106,8 @@ def send_img_toSLAM(self, frame):
 def PilotNet_crop_img(frame):
     frame = frame.resize((320,160))
     image_array = np.array(frame.copy())
-    # image_array = image_array[40:-50, :]
-    image_array = image_array[65:-25, :] # 예전 코드
+    image_array = image_array[40:-50, :]
+    # image_array = image_array[65:-25, :] # 예전 코드
     crop_img = image_array.copy()
     return image_array, crop_img
     
@@ -144,7 +144,7 @@ def auto_control_car(ser, diff_angle, csv_angle) :
             csv_angle -= 0.25
             if csv_angle <= -1 :
                 csv_angle = -1
-
+    
     return csv_angle
 
 def keyboard_control_car(ser, key, csv_angle):
@@ -173,76 +173,68 @@ def keyboard_control_car(ser, key, csv_angle):
 
 
 def left_1(juno_x, margin):
-    juno_z = -7.273 * (juno_x - margin + 0.05)  -0.080
+    juno_z = -10.923 * (juno_x - margin)  -0.211
     return juno_z
 
 def left_2(juno_x, margin):
-    juno_z = -0.926 * (juno_x - margin)  + 0.143
+    juno_z = -0.951 * (juno_x - margin)  + 0.148
     return juno_z
 
 def left_3(juno_x, margin):
-    juno_z = -0.068 * (juno_x)  + 0.346 + margin
+    juno_z = 0.026 * (juno_x)  + 0.382 + margin
     return juno_z
 
 def left_4(juno_x, margin):
-    juno_z = 0.605 * (juno_x)  + 0.653 + margin
+    juno_z = 0.656 * (juno_x)  + 0.680 + margin
     return juno_z
 
-def left_5(juno_x, margin):
-    juno_z = 0.111 * (juno_x)  + 0.319 + margin
-    return juno_z
+
 
 def right_1(juno_x, margin):
-    juno_z = -26.857 * (juno_x + margin - 0.05)  + 0.618
+    juno_z = -7.333 * (juno_x + margin )  + 0.243
     return juno_z
 
 def right_2(juno_x, margin):
-    juno_z = -1.139 * (juno_x + margin)  + 0.232
+    juno_z = -0.933 * (juno_x + margin)  + 0.199
     return juno_z
 
 def right_3(juno_x, margin):
-    juno_z = 0.072 * (juno_x)  + 0.484 - margin
+    juno_z = -0.008 * (juno_x)  + 0.400 - margin
     return juno_z
 
 def right_4(juno_x, margin):
-    juno_z = 0.759 * (juno_x)  + 0.799 - margin
+    juno_z = 0.547 * (juno_x)  + 0.656 - margin
     return juno_z
 
-def right_5(juno_x, margin):
-    juno_z = 0.040 * (juno_x)  + 0.305 - margin
-    return juno_z
 
 def bridge_1(juno_x, margin):
-    juno_z = 0.343 * (juno_x - margin)  + 0.019
+    juno_z = 0.417 * (juno_x - margin)  + 0.05
     return juno_z
 
 def bridge_2(juno_x, margin):
-    juno_z = 0.800 * (juno_x - margin)  + 0.203
+    juno_z = 0.233 * (juno_x - margin)  + 0.190
     return juno_z
 
 def bridge_3(juno_x, margin):
-    juno_z = 3.690 * (juno_x - margin)  + 1.236
+    juno_z = 1.182 * (juno_x - margin)  + 0.660
     return juno_z
 
 def bridge_4(juno_x, margin):
-    juno_z = -24.667 * (juno_x - margin)  -10.871
+    juno_z = 2.615 * (juno_x - margin) + 1.607
     return juno_z
 
 def bridge_5(juno_x, margin):
-    juno_z = -3.091 * (juno_x - margin)  -1.845
-    return juno_z
-
-def bridge_6(juno_x, margin):
-    juno_z = -4.300 * (juno_x - margin)  -3.219
+    juno_z = -11.250 * (juno_x - margin)  -7.166
     return juno_z
 
 
 
-def localization(ser, juno_x, juno_z, out_cnt, area):
+
+def localization(juno_x, juno_z, out_cnt, area):
     print("x : ", juno_x, "\nz : " , juno_z)
     print()
     margin = 0.00
-    support_margin = 0.01
+    support_margin = 0.00
     direction = ''
     
     if ((juno_z > left_1(juno_x, margin)) and (juno_z < right_1(juno_x, margin)) and (juno_z < bridge_2(juno_x, margin))):
@@ -253,7 +245,7 @@ def localization(ser, juno_x, juno_z, out_cnt, area):
         out_cnt = 0
         area = "area2"
         print("area2")
-    elif ((juno_z > left_3(juno_x, margin)) and (juno_z < right_3(juno_x, margin) ) and (juno_z > bridge_4(juno_x, margin))) :
+    elif ((juno_z > left_3(juno_x, margin)) and (juno_z < right_3(juno_x, margin) ) and (juno_z < bridge_4(juno_x, margin))) :
         out_cnt = 0
         area = "area3"
         print("area3")
@@ -261,14 +253,13 @@ def localization(ser, juno_x, juno_z, out_cnt, area):
         out_cnt = 0
         area = "area4"
         print("area4")
-    elif ((juno_z > left_5(juno_x, margin)) and (juno_z < right_5(juno_x, margin)) and (juno_z > bridge_6(juno_x, margin))):
-        out_cnt = 0
-        area = "area5"
-        print("area5")
+    # elif ((juno_z > left_5(juno_x, margin)) and (juno_z < right_5(juno_x, margin)) and (juno_z > bridge_6(juno_x, margin))):
+    #     out_cnt = 0
+    #     area = "area5"
+    #     print("area5")
     else :      
         out_cnt = out_cnt + 1
     
-    print("area = " ,area)
     if ( area == "area1" ) and ( juno_z < left_1(juno_x, support_margin) )  :
         print("send d = 오른쪽으로 가.")
         direction = 'turn right'

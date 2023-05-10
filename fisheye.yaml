@@ -1,8 +1,8 @@
 %YAML:1.0
 
 
-# System.SaveAtlasToFile: "test1"
-System.LoadAtlasFromFile: "NTH2"
+# System.SaveAtlasToFile: "paper"
+System.LoadAtlasFromFile: "paper"
 
 
 

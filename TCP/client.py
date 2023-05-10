@@ -17,7 +17,7 @@ from io import BytesIO
 import socket
 import csv
 import client_func as capstone
-
+import time
 
 transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
@@ -49,7 +49,7 @@ frame_yolo = 0
 detect_sign = 0
 prev_detect = 0
 cur_angle=0
-
+ser=0
 # STM32F411RE 연결할지 말지
 if FLAG_SERIAL == 'CONNECTED': # Connected to STM32
     ser = capstone.serial_connect(OS_TYPE)
@@ -108,15 +108,15 @@ class ImageThread(threading.Thread):
             
             #YOLO
 
-            if driving_type == 'AUTO' :
-                if cnt % 10 == 0:
-                    juno_person = capstone.detect(frame)    
-                    if juno_person == 1:
-                        ser.write(b'x') 
-                    elif juno_person == 0 and prev_person == 1:
-                        print("go again!!")
-                        ser.write(b'w')
-                    prev_person = juno_person
+            # if driving_type == 'AUTO' :
+                # if cnt % 10 == 0:
+                #     juno_person = capstone.detect(frame)    
+                #     if juno_person == 1:
+                #         ser.write(b'x') 
+                #     elif juno_person == 0 and prev_person == 1:
+                #         print("go again!!")
+                #         ser.write(b'w')
+                #     prev_person = juno_person
 
             #KEY preprocessing
             if (97 <= key <= 122) or (65 <= key <= 90):
@@ -186,6 +186,7 @@ class StringThread(threading.Thread):
         global Boundary # 쓰레드 공유변수
         global driving_type
         global cur_angle
+        
         # main.
         out_cnt = 0
         while True:
@@ -198,22 +199,26 @@ class StringThread(threading.Thread):
             juno_x = round(float(data[0][0:7]),3)
             juno_z = round(float(data[1][0:7]),3)
 
-            lock.acquire()
-            Boundary = 'IN BOUNDARY' # 범위 안에 있음
-            lock.release()
+            
             
             #냬 위치 파악
             
-            out_cnt, flag_direction = capstone.localization(ser, juno_x, juno_z, out_cnt, area)
+            out_cnt, flag_direction = capstone.localization( juno_x, juno_z, out_cnt, area)
             # #_맵없이 할떄 임시로 지워둠.
             # # 좌표가 순간적으로 튀는 것을 방지하기 위해
-            if out_cnt > 0:
-                lock.acquire()
-                Boundary = 'OUT OF BOUNDARY'
-                cur_angle = 0
+            if out_cnt > 0 :
+                if Boundary == 'IN BOUNDARY':
+                    lock.acquire()
+                    Boundary = 'OUT OF BOUNDARY'
+                    cur_angle = 0
+            else:
+                if Boundary =='OUT OF BOUNDARY':
+                    lock.acquire()
+                    Boundary = 'IN BOUNDARY' # 범위 안에 있음
+                    lock.release()
+
                 
                 lock.release()
-                print(Boundary)
             # 나갔으면
             if FLAG_SERIAL== 'CONNECTED' and driving_type == 'AUTO':
 
@@ -223,12 +228,19 @@ class StringThread(threading.Thread):
                     #     driving_type = 'MANUAL'
                     # else:    
                     if flag_direction == 'turn right':
-                        ser.write('d')
+                        print('out_of_left')
+                        ser.write(b'd')
+                        ser.write(b'd')
+                        time.sleep(0.5)
+                        a = 0
                         
-                    elif flag_direction == 'turn right':
-                        ser.write('d')
+                    elif flag_direction == 'turn left':
+                        print('out_of_right')
+                        ser.write(b'a')
+                        ser.write(b'a')
+                        time.sleep(0.5)
                     
-                
+                        a = 0
 
         # 연결 종료
         self.conn.close()

@@ -23,8 +23,8 @@ transformations = T.Compose(
     [T.Lambda(lambda x: (x / 127.5) - 1.0)])
 
 
-#FLAG_SERIAL = 'DISCONNECTED'
-FLAG_SERIAL = 'CONNECTED'
+FLAG_SERIAL = 'DISCONNECTED'
+# FLAG_SERIAL = 'CONNECTED'
 
 # OS_TYPE = 'MAC' 
 OS_TYPE = 'UBUNTU'

@@ -1,5 +1,12 @@
 # Description
-![1687956730129](image/README/1687956730129.png)# PilotNet 성능 향상을 위한 SLAM과 YOLO활용
+
+![1687956730129](image/README/1687956730129.png)
+
+[
+]()
+
+[YouTube LINK](https://youtube.com/playlist?list=PLg3p47m-psINqF_8QVGMixhW7zAv6Ir2F)
+
 
 고강현
 

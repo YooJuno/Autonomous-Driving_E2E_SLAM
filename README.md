@@ -2,10 +2,10 @@
 
 ![1687956730129](image/README/1687956730129.png)
 
-[
-]()
 
-[YouTube LINK](https://youtube.com/playlist?list=PLg3p47m-psINqF_8QVGMixhW7zAv6Ir2F)
+### Referrence link
+
+### [YouTube LINK](https://youtube.com/playlist?list=PLg3p47m-psINqF_8QVGMixhW7zAv6Ir2F)
 
 
 고강현

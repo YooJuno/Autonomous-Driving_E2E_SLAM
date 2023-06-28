@@ -20,5 +20,3 @@
 * BOOST LIBRARY
 * Pangolin
 * PYTORCH
-
----

@@ -11,10 +11,7 @@
 임수현
 
 
----
-
-
-### **구현 환경**
+## **구현 환경**
 
 * UBUNTU20.04
 * C++
@@ -23,6 +20,5 @@
 * BOOST LIBRARY
 * Pangolin
 * PYTORCH
-
 
 ---

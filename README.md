@@ -9,4 +9,18 @@
 임수현
 
 
-Handong Global University, Computer Science and Electrical Engineering
+---
+
+
+### **구현 환경**
+
+* UBUNTU20.04
+* C++
+* PYTHON
+* OPENCV4.4.0
+* BOOST LIBRARY
+* Pangolin
+* PYTORCH
+
+
+---

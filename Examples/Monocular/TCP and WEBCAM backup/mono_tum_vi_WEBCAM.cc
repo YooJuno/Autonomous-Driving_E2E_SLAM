@@ -19,10 +19,7 @@
 
 #define _WEBCAM_BUILD_
 
-
 using namespace std;
-
-      
 
 int main(int argc, char **argv)
 {

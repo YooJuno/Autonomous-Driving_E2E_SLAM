@@ -14,7 +14,7 @@ ls /dev/tty.*
 
 
 
----- 실행은 /ORB_SLAM3/TCP 기준 ----
+---- 실행은 /TCP 기준 ----
 [autodrive]
 python3 client.py    --model ./model/model-a-100_1.h5    --IP <IP>    --PORT <PORT>
 
